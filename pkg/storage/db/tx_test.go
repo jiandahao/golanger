@@ -89,5 +89,9 @@ func (t *transactionTester) runTest(ctx context.Context) error {
 
 		t.curDepth++
 		return t.runTest(ctx)
-	})
+	}, func(curDepth int) func() {
+		return func() {
+			fmt.Println("callback from depth:", curDepth)
+		}
+	}(t.curDepth))
 }

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	utils "github.com/jiandahao/golanger/pkg/utils/db"
+	dbutils "github.com/jiandahao/golanger/pkg/storage/db"
 	"gorm.io/gorm"
 )
 
@@ -51,7 +51,7 @@ func NewUserTabModel(conn *gorm.DB) UserTabModel {
 
 // Insert insert one record into user_tab.
 func (m *defaultUserTabModel) Insert(ctx context.Context, data *UserTab) error {
-	err := utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+	err := dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 		return tx.Create(&data).Error
 	})
 
@@ -109,14 +109,14 @@ func (m *defaultUserTabModel) FindOneByUsername(ctx context.Context, username st
 
 // Update update a record.
 func (m *defaultUserTabModel) Update(ctx context.Context, data *UserTab) error {
-	return utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+	return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 		return tx.Updates(data).Error
 	})
 }
 
 // Delete deletes by primary key.
 func (m *defaultUserTabModel) Delete(ctx context.Context, id int64) error {
-	return utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+	return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 		return tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE `id` = ? LIMIT 1", UserTab{}.TableName()), id).Error
 	})
 }

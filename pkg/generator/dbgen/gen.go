@@ -89,7 +89,7 @@ func initTemplates() {
 	template.Insert = `
 	// Insert insert one record into user_tab.
 	func (m *default{{.upperStartCamelObject}}Model) Insert(ctx context.Context, data *{{.upperStartCamelObject}}) error {
-		err := utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+		err := dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 			return tx.Create(&data).Error
 		})
 
@@ -105,7 +105,7 @@ func initTemplates() {
 	template.Delete = `
 	// Delete deletes by primary key.
 	func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}) error {
-		return utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+		return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 			return tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE {{.originalPrimaryKey}} = ? LIMIT 1", {{.upperStartCamelObject}}{}.TableName()), {{.lowerStartCamelPrimaryKey}}).Error
 		})
 	}`
@@ -114,7 +114,7 @@ func initTemplates() {
 	template.Update = `
 	// Update update a record.
 	func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, data *{{.upperStartCamelObject}}) error {
-		return utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+		return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 			return tx.Updates(data).Error
 		})
 	}`
@@ -161,7 +161,7 @@ func initTemplates() {
 		"fmt"
 		"database/sql"
 	
-		utils "github.com/jiandahao/golanger/pkg/utils/db"
+		dbutils "github.com/jiandahao/golanger/pkg/storage/db"
 		"gorm.io/gorm"
 	)`
 
