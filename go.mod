@@ -3,6 +3,7 @@ module github.com/jiandahao/golanger
 go 1.16
 
 require (
+	bou.ke/monkey v1.0.2
 	github.com/gin-gonic/gin v1.7.4
 	github.com/jiandahao/goutils v0.1.2-0.20220220032250-5ec4b7c79a69
 	github.com/jmoiron/sqlx v1.3.4
