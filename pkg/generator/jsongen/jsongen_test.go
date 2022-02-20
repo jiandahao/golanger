@@ -26,12 +26,12 @@ func TestGenerateFromString(t *testing.T) {
 			}`},
 			want: fmt.Sprintf(
 				`type Generated struct {
-					FloatVal float64  %s
 					BoolVal bool %s
+					FloatVal float64  %s
 					StringVal string %s 
 				}`,
-				"`json:\"float_val,omitempty\"`",
 				"`json:\"bool_val,omitempty\"`",
+				"`json:\"float_val,omitempty\"`",
 				"`json:\"string_val,omitempty\"`",
 			),
 			wantErr: false,
@@ -49,12 +49,12 @@ func TestGenerateFromString(t *testing.T) {
 					User User %s
 				}
 				type User struct {
-					Name string %s
 					Age string %s
+					Name string %s
 				}`,
 				"`json:\"user,omitempty\"`",
-				"`json:\"name,omitempty\"`",
 				"`json:\"age,omitempty\"`",
+				"`json:\"name,omitempty\"`",
 			),
 			wantErr: false,
 		},
@@ -71,12 +71,13 @@ func TestGenerateFromString(t *testing.T) {
 					User []User %s
 				}
 				type User struct {
-					Name string %s
 					Age string %s
+					Name string %s
+					
 				}`,
 				"`json:\"user,omitempty\"`",
-				"`json:\"name,omitempty\"`",
 				"`json:\"age,omitempty\"`",
+				"`json:\"name,omitempty\"`",
 			),
 			wantErr: false,
 		},

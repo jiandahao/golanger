@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -86,6 +87,8 @@ func GenerateFromString(s string) (string, error) {
 				fields = append(fields, fmt.Sprintf("%s %s `json:\"%s,omitempty\"`\n", toCamel(key), typeName, key))
 				return true
 			})
+
+			sort.Sort(sort.StringSlice(fields))
 
 			var buf bytes.Buffer
 			if err := structTempl.Execute(&buf, map[string]interface{}{
