@@ -107,3 +107,114 @@ Example:
 - ./scripts/run_unit_test.sh pkg/mysqltest
 - ./scripts/run_unit_test.sh pkg/mysqltest TestMysqltester
 ```
+
+## Generates method stubs
+[`impler`](cmd/impler) generates method stubs for implementing an interface or extracting an interfacce. It's based on [`impl`](https://github.com/josharian/impl)
+
+Installation:
+```bash
+go get -u github.com/jiandahao/golanger
+go install github.com/jiandahao/golanger/impler
+```
+
+Sample usage:
+
+- implementing an interface
+```bash
+$ impler 'f *File' iface io.ReadWriteCloser
+func (f *File) Read(p []byte) (n int, err error) {
+	panic("not implemented")
+}
+
+func (f *File) Write(p []byte) (n int, err error) {
+	panic("not implemented")
+}
+
+func (f *File) Close() error {
+	panic("not implemented")
+}
+
+# You can also provide a full name by specifying the package path.
+# This helps in cases where the interface can't be guessed
+# just from the package name and interface name.
+$ impl 's *Source' golang.org/x/oauth2.TokenSource
+func (s *Source) Token() (*oauth2.Token, error) {
+    panic("not implemented")
+}
+```
+
+- extracting an interface
+```bash
+$ impler myinterface struct time.Ticker
+
+type myinterface interface {
+
+	// Stop turns off a ticker. After Stop, no more ticks will be sent.
+	// Stop does not close the channel, to prevent a concurrent goroutine
+	// reading from the channel from seeing an erroneous "tick".
+	Stop()
+
+	// Reset stops a ticker and resets its period to the specified duration.
+	// The next tick will arrive after the new period elapses.
+	Reset(d time.Duration)
+}
+```
+
+You can use `impler` from VSCode with [vscode-go-impl-methods](https://github.com/jiandahao/vscode-go-impl-methods) plugin.
+
+## Validate Go Template
+[`impler`](cmd/impler) is a simple tool to validate a go template and visually show where validation errors are happening. 
+For example, we got a template string: 
+```bash
+type {{ .Name.ToCamel }}Model struct {
+		{{ range .Fields }}
+			{{- .Name.ToCamel } {{.DataType}} ` + "`gorm:\"column:{{ .Name.Source }}\"`" + ` {{if .Comment }}// {{.Comment}} {{end}}
+		{{ end -}}
+	}
+```
+after validating it by templare_validator, we'll get result as following:
+```bash
+type {{ .Name.ToCamel }}Model struct {
+        {{ range .Fields }}
+                {{- .Name.ToCamel } {{.DataType}} `gorm:"column:{{ .Name.Source }}"` {{if .Comment }}// {{.Comment}} {{end}}
+                    ↑ unexpected "}" in operand
+        {{ end -}}
+    }
+```
+
+
+[Reference]: https://github.com/apexskier/go-template-validation
+
+## Converts JSON string into Go structure
+[`jsongen`](cmd/jsongen) is a useful tool that receives a JSON string and then coverts it into go structure
+
+for example:
+```bash
+jsongen -s '{
+                "city":["beijing", "shanghai"],
+                "cotunry":"china",
+                "countryCode":"CN",
+                "age":12,
+                "users": [{"name":"jian", "age":24}],
+                "jobs":{
+                        "name":"jobname"
+                }
+        }'
+
+
+type Generated struct {
+        Age         float64  `json:"age,omitempty"`
+        Users       []User   `json:"users,omitempty"`
+        Jobs        Jobs     `json:"jobs,omitempty"`
+        City        []string `json:"city,omitempty"`
+        Cotunry     string   `json:"cotunry,omitempty"`
+        CountryCode string   `json:"countryCode,omitempty"`
+}
+type User struct {
+        Name string  `json:"name,omitempty"`
+        Age  float64 `json:"age,omitempty"`
+}
+type Jobs struct {
+        Name string `json:"name,omitempty"`
+}
+```
