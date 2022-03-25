@@ -171,7 +171,7 @@ func initTemplates() {
 
 	template.FindOneByFieldMethod = `FindOneBy{{.upperField}}(ctx context.Context,{{.in}}) (*{{.upperStartCamelObject}}, error)`
 	template.FindOneByField = `
-	// FindOneBy find records by {{.upperField}}.
+	// FindOneBy{{.upperField}} finds records by {{.upperField}}.
 	func (m *default{{.upperStartCamelObject}}Model) FindOneBy{{.upperField}}(ctx context.Context, {{.in}}) (*{{.upperStartCamelObject}}, error) {
 		var resp {{.upperStartCamelObject}}
 		{{if .withCache}}{{.cacheKey}}
