@@ -13,6 +13,9 @@ require (
 	github.com/zeromicro/go-zero v1.3.0
 	github.com/zeromicro/go-zero/tools/goctl v1.3.2
 	golang.org/x/tools v0.1.5
+	google.golang.org/genproto v0.0.0-20220112215332-a9c7c0acf9f2
+	google.golang.org/grpc v1.43.0
+	google.golang.org/protobuf v1.27.1
 	gorm.io/driver/mysql v1.1.2
 	gorm.io/gorm v1.21.15
 )
