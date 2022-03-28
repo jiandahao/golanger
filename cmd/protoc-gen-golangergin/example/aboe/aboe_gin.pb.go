@@ -6,9 +6,8 @@ import (
 	context "context"
 	gin "github.com/gin-gonic/gin"
 	runtime "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"
+	status "github.com/jiandahao/golanger/pkg/generator/gingen/status"
 	status1 "google.golang.org/genproto/googleapis/rpc/status"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -257,95 +256,95 @@ type ABitOfEverythingServiceServer interface {
 type UnimplementedABitOfEverythingServiceServer struct{}
 
 func (s *UnimplementedABitOfEverythingServiceServer) Create(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method Create not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CreateBody(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateBody not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CreateBody not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CreateBook(context.Context, *CreateBookRequest) (*Book, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateBook not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CreateBook not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) UpdateBook(context.Context, *UpdateBookRequest) (*Book, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateBook not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method UpdateBook not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Lookup(context.Context, *IdMessage) (*ABitOfEverything, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Lookup not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method Lookup not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Update(context.Context, *ABitOfEverything) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method Update not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) UpdateV2(context.Context, *UpdateV2Request) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateV2 not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method UpdateV2 not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Delete(context.Context, *IdMessage) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method Delete not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) GetQuery(context.Context, *ABitOfEverything) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetQuery not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method GetQuery not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) GetRepeatedQuery(context.Context, *ABitOfEverythingRepeated) (*ABitOfEverythingRepeated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetRepeatedQuery not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method GetRepeatedQuery not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Echo(context.Context, *StringMessage) (*StringMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Echo not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method Echo not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) DeepPathEcho(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeepPathEcho not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method DeepPathEcho not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Timeout(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Timeout not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method Timeout not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) ErrorWithDetails(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ErrorWithDetails not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method ErrorWithDetails not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) GetMessageWithBody(context.Context, *MessageWithBody) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetMessageWithBody not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method GetMessageWithBody not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) PostWithEmptyBody(context.Context, *Body) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PostWithEmptyBody not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method PostWithEmptyBody not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckGetQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckGetQueryParams not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CheckGetQueryParams not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckNestedEnumGetQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckNestedEnumGetQueryParams not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CheckNestedEnumGetQueryParams not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckPostQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckPostQueryParams not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CheckPostQueryParams not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) OverwriteResponseContentType(context.Context, *emptypb.Empty) (*StringValue, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OverwriteResponseContentType not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method OverwriteResponseContentType not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckExternalPathEnum(context.Context, *MessageWithPathEnum) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckExternalPathEnum not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CheckExternalPathEnum not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckExternalNestedPathEnum(context.Context, *MessageWithNestedPathEnum) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckExternalNestedPathEnum not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CheckExternalNestedPathEnum not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckStatus(context.Context, *emptypb.Empty) (*CheckStatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckStatus not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CheckStatus not implemented")
 }
 
 type defaultABitOfEverythingServiceDecorator struct {
@@ -356,12 +355,12 @@ func (s defaultABitOfEverythingServiceDecorator) Create_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -378,7 +377,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBody_0(ctx *gin.Context) 
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -395,7 +394,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBook_0(ctx *gin.Context) 
 	var req CreateBookRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -412,7 +411,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateBook_0(ctx *gin.Context) 
 	var req UpdateBookRequest
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -429,12 +428,12 @@ func (s defaultABitOfEverythingServiceDecorator) Lookup_0(ctx *gin.Context) {
 	var req IdMessage
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -451,12 +450,12 @@ func (s defaultABitOfEverythingServiceDecorator) Update_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -473,12 +472,12 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_0(ctx *gin.Context) {
 	var req UpdateV2Request
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -495,12 +494,12 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 	var req UpdateV2Request
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -517,12 +516,12 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 	var req UpdateV2Request
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -539,12 +538,12 @@ func (s defaultABitOfEverythingServiceDecorator) Delete_0(ctx *gin.Context) {
 	var req IdMessage
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -561,12 +560,12 @@ func (s defaultABitOfEverythingServiceDecorator) GetQuery_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -583,12 +582,12 @@ func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery_0(ctx *gin.Con
 	var req ABitOfEverythingRepeated
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -605,12 +604,12 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_0(ctx *gin.Context) {
 	var req StringMessage
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -627,7 +626,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 	var req StringMessage
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -644,7 +643,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 	var req StringMessage
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -661,12 +660,12 @@ func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho_0(ctx *gin.Context
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -683,7 +682,7 @@ func (s defaultABitOfEverythingServiceDecorator) Timeout_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -700,7 +699,7 @@ func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails_0(ctx *gin.Con
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -717,12 +716,12 @@ func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody_0(ctx *gin.C
 	var req MessageWithBody
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -739,12 +738,12 @@ func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody_0(ctx *gin.Co
 	var req Body
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -761,12 +760,12 @@ func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams_0(ctx *gin.
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -783,12 +782,12 @@ func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams_0
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -805,12 +804,12 @@ func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams_0(ctx *gin
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -827,7 +826,7 @@ func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType_0(
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -844,7 +843,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum_0(ctx *gi
 	var req MessageWithPathEnum
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -861,7 +860,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum_0(c
 	var req MessageWithNestedPathEnum
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -878,7 +877,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckStatus_0(ctx *gin.Context)
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -932,7 +931,7 @@ type CamelCaseServiceNameServer interface {
 type UnimplementedCamelCaseServiceNameServer struct{}
 
 func (s *UnimplementedCamelCaseServiceNameServer) Empty(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Empty not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method Empty not implemented")
 }
 
 type defaultCamelCaseServiceNameDecorator struct {
@@ -943,7 +942,7 @@ func (s defaultCamelCaseServiceNameDecorator) Empty_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 

@@ -83,8 +83,7 @@ func (p *ProtocPlugin) generateFile(file *fileInfo) {
 	// Using QualifiedGoIdent to make referenced Packages to be automatically imported.
 	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "context"})
 	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/gin-gonic/gin"})
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "google.golang.org/grpc/codes"})
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "google.golang.org/grpc/status"})
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/status"})
 	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"})
 
 	p.genMessage(generatedFile, file.allMessages)
@@ -369,7 +368,7 @@ var unimplementServerTempl = `
 
 	{{- range .Methods}}
 	func (s *Unimplemented{{$serviceName}}Server) {{.Name}}(context.Context, *{{.Request}}) (*{{.Response}}, error) {
-		return nil, status.Errorf(codes.Unimplemented, "method {{.Name}} not implemented")
+		return nil, status.Errorf(status.Unimplemented, "method {{.Name}} not implemented")
 	}
 	{{ end }}		
 	`
@@ -388,24 +387,24 @@ var serviceDecoratorTempl = `
 				var req {{$requestParamType}}
 				{{ if $rule.HasPathParam }}
 				if err := ctx.ShouldBindUri(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
 					return
 				}
 				{{ end }}
 
 				{{ if eq $rule.Method "GET" "DELETE" }}
 				if err := ctx.ShouldBindQuery(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
 					return
 				}
 				{{else if eq $rule.Method "POST" "PUT" }}
 				if err := ctx.ShouldBindJSON(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
 					return
 				}
 				{{else}}
 				if err := ctx.ShouldBind(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
 					return
 				}
 				{{end}}

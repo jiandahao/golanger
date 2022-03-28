@@ -6,8 +6,7 @@ import (
 	context "context"
 	gin "github.com/gin-gonic/gin"
 	runtime "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
+	status "github.com/jiandahao/golanger/pkg/generator/gingen/status"
 )
 
 // register request
@@ -47,11 +46,11 @@ type AccountServer interface {
 type UnimplementedAccountServer struct{}
 
 func (s *UnimplementedAccountServer) CreateAccount(context.Context, *AccountRegister) (*RegisterStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateAccount not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method CreateAccount not implemented")
 }
 
 func (s *UnimplementedAccountServer) GetProfile(context.Context, *GetProfileRequest) (*Profile, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
+	return nil, status.Errorf(status.Unimplemented, "method GetProfile not implemented")
 }
 
 type defaultAccountDecorator struct {
@@ -62,7 +61,7 @@ func (s defaultAccountDecorator) CreateAccount_0(ctx *gin.Context) {
 	var req AccountRegister
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -79,12 +78,12 @@ func (s defaultAccountDecorator) GetProfile_0(ctx *gin.Context) {
 	var req GetProfileRequest
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -101,7 +100,7 @@ func (s defaultAccountDecorator) GetProfile_1(ctx *gin.Context) {
 	var req GetProfileRequest
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
 	}
 
