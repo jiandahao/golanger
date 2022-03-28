@@ -82,6 +82,11 @@ func (s defaultAccountDecorator) GetProfile_0(ctx *gin.Context) {
 		return
 	}
 
+	if err := ctx.ShouldBindHeader(&req); err != nil {
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		return
+	}
+
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
 		return
@@ -98,6 +103,11 @@ func (s defaultAccountDecorator) GetProfile_0(ctx *gin.Context) {
 
 func (s defaultAccountDecorator) GetProfile_1(ctx *gin.Context) {
 	var req GetProfileRequest
+
+	if err := ctx.ShouldBindHeader(&req); err != nil {
+		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		return
+	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))

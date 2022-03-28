@@ -258,6 +258,20 @@ func genMethod(g *protogen.GeneratedFile, m *protogen.Method) *Method {
 			method.HTTPRules = append(method.HTTPRules, extractHTTPRule(bind))
 		}
 
+	findHeaderParam:
+		for _, item := range m.Input.Fields {
+			trailingComment := strings.TrimPrefix(item.Comments.Trailing.String(), "//")
+			rawTags := strings.Split(trailingComment, " ")
+			for _, rt := range rawTags {
+				res := strings.Split(strings.TrimSpace(rt), ":")
+				if len(res) == 2 && res[0] == "header" {
+					// gin header tag
+					method.HasHeaderParamInRequest = true
+					break findHeaderParam
+				}
+			}
+		}
+
 		return method
 	}
 
@@ -308,11 +322,12 @@ type ServiceInfo struct {
 
 // Method service's method
 type Method struct {
-	Name      string
-	Request   string
-	Response  string
-	HTTPRules []*HTTPRule
-	Comments  string
+	Name                    string
+	Request                 string
+	Response                string
+	HTTPRules               []*HTTPRule
+	Comments                string
+	HasHeaderParamInRequest bool
 }
 
 // HasPathParam returns true if there is at least one http rule contains path param.
@@ -382,6 +397,7 @@ var serviceDecoratorTempl = `
 	{{range .Methods}}
 		{{$methodName := .Name}}
 		{{$requestParamType := .Request}}
+		{{$hasHeaderParam := .HasHeaderParamInRequest}}
 		{{range $index, $rule := .HTTPRules}}
 			func (s default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
 				var req {{$requestParamType}}
@@ -391,6 +407,13 @@ var serviceDecoratorTempl = `
 					return
 				}
 				{{ end }}
+
+				{{ if $hasHeaderParam }}
+				if err := ctx.ShouldBindHeader(&req); err != nil {
+					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
+					return
+				}
+				{{end}}
 
 				{{ if eq $rule.Method "GET" "DELETE" }}
 				if err := ctx.ShouldBindQuery(&req); err != nil {

@@ -17,7 +17,7 @@ func (s *accountServer) CreateAccount(ctx context.Context, in *account.AccountRe
 	return &account.RegisterStatus{Status: "success"}, nil
 }
 func (s *accountServer) GetProfile(ctx context.Context, in *account.GetProfileRequest) (*account.Profile, error) {
-	fmt.Println("====", in.UserId, in.CreateTime)
+	fmt.Println("====", in.UserId, in.CreateTime, in.Token)
 
 	return &account.Profile{UserId: in.UserId, Username: "jian"}, nil
 }
