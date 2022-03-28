@@ -3,11 +3,11 @@
 package account
 
 import (
-	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/jiandahao/golanger/pkg/generator/gingen/runtime"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	context "context"
+	gin "github.com/gin-gonic/gin"
+	runtime "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // register request
@@ -49,6 +49,7 @@ type UnimplementedAccountServer struct{}
 func (s *UnimplementedAccountServer) CreateAccount(context.Context, *AccountRegister) (*RegisterStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAccount not implemented")
 }
+
 func (s *UnimplementedAccountServer) GetProfile(context.Context, *GetProfileRequest) (*Profile, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
 }
@@ -57,7 +58,7 @@ type defaultAccountDecorator struct {
 	ss AccountServer
 }
 
-func (s defaultAccountDecorator) CreateAccount0(ctx *gin.Context) {
+func (s defaultAccountDecorator) CreateAccount_0(ctx *gin.Context) {
 	var req AccountRegister
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -74,7 +75,7 @@ func (s defaultAccountDecorator) CreateAccount0(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultAccountDecorator) GetProfile0(ctx *gin.Context) {
+func (s defaultAccountDecorator) GetProfile_0(ctx *gin.Context) {
 	var req GetProfileRequest
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -96,7 +97,7 @@ func (s defaultAccountDecorator) GetProfile0(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultAccountDecorator) GetProfile1(ctx *gin.Context) {
+func (s defaultAccountDecorator) GetProfile_1(ctx *gin.Context) {
 	var req GetProfileRequest
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -116,7 +117,7 @@ func (s defaultAccountDecorator) GetProfile1(ctx *gin.Context) {
 // RegisterAccountServer registers the http handlers for service Account to "router".
 func RegisterAccountServer(router gin.IRouter, s AccountServer) {
 	d := defaultAccountDecorator{ss: s}
-	router.Handle("POST", "/v1/auth/signin", d.CreateAccount0)
-	router.Handle("GET", "/v1/user/:user_id/profile", d.GetProfile0)
-	router.Handle("GET", "/v1/user/profiles", d.GetProfile1)
+	router.Handle("POST", "/v1/auth/signin", d.CreateAccount_0)
+	router.Handle("GET", "/v1/user/:user_id/profile", d.GetProfile_0)
+	router.Handle("GET", "/v1/user/profiles", d.GetProfile_1)
 }

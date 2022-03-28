@@ -37,40 +37,62 @@ func NewProtocPlugin() func(gen *protogen.Plugin) error {
 // Execute starts to generate file.
 func (p *ProtocPlugin) Execute() error {
 	for _, file := range p.gen.Files {
-		p.generateFile(file)
+		p.generateFile(p.newFileInfo(file))
 		//	gengo.GenerateFile(p.gen, file)
 	}
 
 	return nil
 }
 
-func (p *ProtocPlugin) generateFile(file *protogen.File) {
-	if len(file.Services) == 0 {
-		return
+type fileInfo struct {
+	*protogen.File
+
+	allEnums    []*protogen.Enum
+	allMessages []*protogen.Message
+	// allExtensions []*extensionInfo
+}
+
+func (p *ProtocPlugin) newFileInfo(file *protogen.File) *fileInfo {
+	f := &fileInfo{File: file}
+	// Collect all enums, messages, and extensions in "flattened ordering".
+	var walkMessages func([]*protogen.Message, func(*protogen.Message))
+	walkMessages = func(messages []*protogen.Message, f func(*protogen.Message)) {
+		for _, m := range messages {
+			f(m)
+			walkMessages(m.Messages, f)
+		}
 	}
 
+	f.allEnums = append(f.allEnums, f.Enums...)
+	f.allMessages = append(f.allMessages, f.Messages...)
+
+	walkMessages(f.Messages, func(m *protogen.Message) {
+		f.allEnums = append(f.allEnums, m.Enums...)
+		f.allMessages = append(f.allMessages, m.Messages...)
+	})
+	return f
+}
+
+func (p *ProtocPlugin) generateFile(file *fileInfo) {
 	filename := file.GeneratedFilenamePrefix + "_gin.pb.go"
 	generatedFile := p.gen.NewGeneratedFile(filename, file.GoImportPath)
 	generatedFile.P(`// Code generated. DO NOT EDIT.
 
-	package ` + file.GoPackageName + `
-	
-	import (
-		"context"
-		"github.com/gin-gonic/gin"
-		"github.com/jiandahao/golanger/pkg/generator/gingen/runtime"
-		"google.golang.org/grpc/codes"
-		"google.golang.org/grpc/status"
-	)
-	`)
+	package ` + file.GoPackageName)
 
-	p.genMessage(generatedFile, file.Messages)
-	// TODO: p.genEnum(generatedFile, file.Enums)
+	// Using QualifiedGoIdent to make referenced Packages to be automatically imported.
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "context"})
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/gin-gonic/gin"})
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "google.golang.org/grpc/codes"})
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "google.golang.org/grpc/status"})
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"})
+
+	p.genMessage(generatedFile, file.allMessages)
+	p.genEnum(generatedFile, file.allEnums)
 
 	for _, service := range file.Services {
 		p.generateService(generatedFile, service)
 	}
-
 }
 
 func (p *ProtocPlugin) generateService(generatedFile *protogen.GeneratedFile, service *protogen.Service) {
@@ -83,7 +105,7 @@ func (p *ProtocPlugin) generateService(generatedFile *protogen.GeneratedFile, se
 		ServiceName: service.GoName,
 	}
 	for _, method := range service.Methods {
-		s.Methods = append(s.Methods, genMethod(method))
+		s.Methods = append(s.Methods, genMethod(generatedFile, method))
 	}
 
 	generatedFile.P(executeTemplate("serviceInterfaceTempl", serviceInterfaceTempl, s))
@@ -92,10 +114,59 @@ func (p *ProtocPlugin) generateService(generatedFile *protogen.GeneratedFile, se
 	generatedFile.P(executeTemplate("registerTempl", registerTempl, s))
 }
 
+func (p *ProtocPlugin) genEnum(generatedFile *protogen.GeneratedFile, enums []*protogen.Enum) {
+	for _, enum := range enums {
+		leadingComments := appendDeprecationSuffix(enum.Comments.Leading,
+			enum.Desc.Options().(*descriptorpb.EnumOptions).GetDeprecated())
+		generatedFile.P(leadingComments, "type ", enum.GoIdent, " int32")
+
+		// Enum value constants.
+		generatedFile.P("const (")
+		for _, value := range enum.Values {
+			generatedFile.Annotate(value.GoIdent.GoName, value.Location)
+			leadingComments := appendDeprecationSuffix(value.Comments.Leading,
+				value.Desc.Options().(*descriptorpb.EnumValueOptions).GetDeprecated())
+			generatedFile.P(leadingComments,
+				value.GoIdent, " ", enum.GoIdent, " = ", value.Desc.Number(),
+				trailingComment(value.Comments.Trailing))
+		}
+		generatedFile.P(")")
+		generatedFile.P()
+	}
+}
+
+// appendDeprecationSuffix optionally appends a deprecation notice as a suffix.
+func appendDeprecationSuffix(prefix protogen.Comments, deprecated bool) protogen.Comments {
+	if !deprecated {
+		return prefix
+	}
+	if prefix != "" {
+		prefix += "\n"
+	}
+	return prefix + " Deprecated: Do not use.\n"
+}
+
+// trailingComment is like protogen.Comments, but lacks a trailing newline.
+type trailingComment protogen.Comments
+
+func (c trailingComment) String() string {
+	s := strings.TrimSuffix(protogen.Comments(c).String(), "\n")
+	if strings.Contains(s, "\n") {
+		// We don't support multi-lined trailing comments as it is unclear
+		// how to best render them in the generated code.
+		return ""
+	}
+	return s
+}
+
 func (p *ProtocPlugin) genMessage(generatedFile *protogen.GeneratedFile, messages []*protogen.Message) {
 	type structTag [][2]string
 	for _, msg := range messages {
-		generatedFile.P(msg.Comments.Leading.String(), "type ", msg.GoIdent.GoName, " struct {\n")
+		leadingComments := msg.Comments.Leading.String()
+		if leadingComments == "" {
+			leadingComments = "\n"
+		}
+		generatedFile.P(leadingComments, "type ", msg.GoIdent.GoName, " struct {\n")
 		for _, field := range msg.Fields {
 			fieldName := field.GoName
 			fieldType, isPointer := fieldGoType(generatedFile, field)
@@ -172,14 +243,14 @@ func fieldGoType(g *protogen.GeneratedFile, field *protogen.Field) (goType strin
 	return goType, pointer
 }
 
-func genMethod(m *protogen.Method) *Method {
+func genMethod(g *protogen.GeneratedFile, m *protogen.Method) *Method {
 	// try to parse http rules
 	rule, ok := proto.GetExtension(m.Desc.Options(), annotations.E_Http).(*annotations.HttpRule)
 	if rule != nil && ok {
 		method := &Method{
 			Name:     m.GoName,
-			Request:  m.Input.GoIdent.GoName,
-			Response: m.Output.GoIdent.GoName,
+			Request:  g.QualifiedGoIdent(m.Input.GoIdent),  //m.Input.GoIdent.GoName,
+			Response: g.QualifiedGoIdent(m.Output.GoIdent), //m.Output.GoIdent.GoName,
 			Comments: m.Comments.Leading.String(),
 		}
 
@@ -300,7 +371,7 @@ var unimplementServerTempl = `
 	func (s *Unimplemented{{$serviceName}}Server) {{.Name}}(context.Context, *{{.Request}}) (*{{.Response}}, error) {
 		return nil, status.Errorf(codes.Unimplemented, "method {{.Name}} not implemented")
 	}
-	{{- end}}		
+	{{ end }}		
 	`
 
 var serviceDecoratorTempl = `
