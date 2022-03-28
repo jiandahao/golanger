@@ -65,6 +65,7 @@ func (p *ProtocPlugin) generateFile(file *protogen.File) {
 	`)
 
 	p.genMessage(generatedFile, file.Messages)
+	// TODO: p.genEnum(generatedFile, file.Enums)
 
 	for _, service := range file.Services {
 		p.generateService(generatedFile, service)
@@ -97,7 +98,7 @@ func (p *ProtocPlugin) genMessage(generatedFile *protogen.GeneratedFile, message
 		generatedFile.P(msg.Comments.Leading.String(), "type ", msg.GoIdent.GoName, " struct {\n")
 		for _, field := range msg.Fields {
 			fieldName := field.GoName
-			fieldType, isPointer := fieldGoType(field)
+			fieldType, isPointer := fieldGoType(generatedFile, field)
 			if isPointer {
 				fieldType = "*" + fieldType
 			}
@@ -128,7 +129,7 @@ func (p *ProtocPlugin) genMessage(generatedFile *protogen.GeneratedFile, message
 // fieldGoType returns the Go type used for a field.
 //
 // If it returns pointer=true, the struct field is a pointer to the type.
-func fieldGoType(field *protogen.Field) (goType string, pointer bool) {
+func fieldGoType(g *protogen.GeneratedFile, field *protogen.Field) (goType string, pointer bool) {
 	if field.Desc.IsWeak() {
 		return "struct{}", false
 	}
@@ -138,8 +139,7 @@ func fieldGoType(field *protogen.Field) (goType string, pointer bool) {
 	case protoreflect.BoolKind:
 		goType = "bool"
 	case protoreflect.EnumKind:
-		// TODO:
-		//	goType = g.QualifiedGoIdent(field.Enum.GoIdent)
+		goType = g.QualifiedGoIdent(field.Enum.GoIdent)
 	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
 		goType = "int32"
 	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
@@ -158,18 +158,16 @@ func fieldGoType(field *protogen.Field) (goType string, pointer bool) {
 		goType = "[]byte"
 		pointer = false // rely on nullability of slices for presence
 	case protoreflect.MessageKind, protoreflect.GroupKind:
-		// TODO:
-		// goType = "*" + g.QualifiedGoIdent(field.Message.GoIdent)
-		// pointer = false // pointer captured as part of the type
+		goType = "*" + g.QualifiedGoIdent(field.Message.GoIdent)
+		pointer = false // pointer captured as part of the type
 	}
 	switch {
 	case field.Desc.IsList():
 		return "[]" + goType, false
 	case field.Desc.IsMap():
-		// TODO:
-		// keyType, _ := fieldGoType(g, f, field.Message.Fields[0])
-		// valType, _ := fieldGoType(g, f, field.Message.Fields[1])
-		// return fmt.Sprintf("map[%v]%v", keyType, valType), false
+		keyType, _ := fieldGoType(g, field.Message.Fields[0])
+		valType, _ := fieldGoType(g, field.Message.Fields[1])
+		return fmt.Sprintf("map[%v]%v", keyType, valType), false
 	}
 	return goType, pointer
 }
@@ -315,7 +313,7 @@ var serviceDecoratorTempl = `
 		{{$methodName := .Name}}
 		{{$requestParamType := .Request}}
 		{{range $index, $rule := .HTTPRules}}
-			func (s default{{$serviceName}}Decorator) {{$methodName}}{{$index}}(ctx *gin.Context){
+			func (s default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
 				var req {{$requestParamType}}
 				{{ if $rule.HasPathParam }}
 				if err := ctx.ShouldBindUri(&req); err != nil {
@@ -361,7 +359,7 @@ var registerTempl = `
 		{{- range .Methods -}}
 			{{ $methodName := .Name }}
 			{{- range $index, $rule := .HTTPRules}}
-				router.Handle("{{$rule.Method}}", "{{$rule.Path}}", d.{{$methodName}}{{$index}})
+				router.Handle("{{$rule.Method}}", "{{$rule.Path}}", d.{{$methodName}}_{{$index}})
 			{{- end}}
 		{{- end}}
 	}
