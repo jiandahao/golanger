@@ -1,17 +1,11 @@
 package gingen
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"strings"
-	"text/template"
 
 	"google.golang.org/genproto/googleapis/api/annotations"
-	//gengo "google.golang.org/protobuf/cmd/protoc-gen-go/internal_gengo"
-	"google.golang.org/protobuf/reflect/protoreflect"
-
-	// gengo "github.com/jiandahao/golanger/pkg/generator/gingen/gengo"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"
@@ -37,23 +31,54 @@ func NewProtocPlugin() func(gen *protogen.Plugin) error {
 // Execute starts to generate file.
 func (p *ProtocPlugin) Execute() error {
 	for _, file := range p.gen.Files {
-		p.generateFile(p.newFileInfo(file))
-		//	gengo.GenerateFile(p.gen, file)
+		p.GenerateFile(NewFileInfo(file))
 	}
 
 	return nil
 }
 
-type fileInfo struct {
-	*protogen.File
+// GenerateFile generates file.
+func (p *ProtocPlugin) GenerateFile(file *FileInfo) {
+	filename := file.GeneratedFilenamePrefix + "_gin.pb.go"
+	generatedFile := p.gen.NewGeneratedFile(filename, file.GoImportPath)
+	generatedFile.P(`// Code generated. DO NOT EDIT.`)
+	generatedFile.P()
+	generatedFile.P(`package ` + file.GoPackageName)
 
-	allEnums    []*protogen.Enum
-	allMessages []*protogen.Message
-	// allExtensions []*extensionInfo
+	// Using QualifiedGoIdent to make referenced Packages to be automatically imported.
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "context"})
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/gin-gonic/gin"})
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/status"})
+	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"})
+
+	for _, item := range file.AllMessages {
+		m := NewMessage(generatedFile, item)
+		m.P()
+	}
+
+	for _, item := range file.AllEnums {
+		e := NewEnum(generatedFile, item)
+		e.P()
+	}
+
+	for _, service := range file.AllService {
+		s := NewService(generatedFile, service)
+		s.P()
+	}
 }
 
-func (p *ProtocPlugin) newFileInfo(file *protogen.File) *fileInfo {
-	f := &fileInfo{File: file}
+// FileInfo file info
+type FileInfo struct {
+	*protogen.File
+	f           *protogen.GeneratedFile
+	AllMessages []*protogen.Message
+	AllEnums    []*protogen.Enum
+	AllService  []*protogen.Service
+}
+
+// NewFileInfo constructs then file info.
+func NewFileInfo(file *protogen.File) *FileInfo {
+	f := &FileInfo{File: file}
 	// Collect all enums, messages, and extensions in "flattened ordering".
 	var walkMessages func([]*protogen.Message, func(*protogen.Message))
 	walkMessages = func(messages []*protogen.Message, f func(*protogen.Message)) {
@@ -63,308 +88,48 @@ func (p *ProtocPlugin) newFileInfo(file *protogen.File) *fileInfo {
 		}
 	}
 
-	f.allEnums = append(f.allEnums, f.Enums...)
-	f.allMessages = append(f.allMessages, f.Messages...)
+	f.AllEnums = append(f.AllEnums, f.Enums...)
+	f.AllMessages = append(f.AllMessages, f.Messages...)
+	f.AllService = append(f.AllService, f.Services...)
 
 	walkMessages(f.Messages, func(m *protogen.Message) {
-		f.allEnums = append(f.allEnums, m.Enums...)
-		f.allMessages = append(f.allMessages, m.Messages...)
+		f.AllEnums = append(f.AllEnums, m.Enums...)
+		f.AllMessages = append(f.AllMessages, m.Messages...)
 	})
+
 	return f
 }
 
-func (p *ProtocPlugin) generateFile(file *fileInfo) {
-	filename := file.GeneratedFilenamePrefix + "_gin.pb.go"
-	generatedFile := p.gen.NewGeneratedFile(filename, file.GoImportPath)
-	generatedFile.P(`// Code generated. DO NOT EDIT.
+// Service describes the service .
+type Service struct {
+	LeadingComments string
+	ServiceName     string
+	Methods         []*Method
 
-	package ` + file.GoPackageName)
-
-	// Using QualifiedGoIdent to make referenced Packages to be automatically imported.
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "context"})
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/gin-gonic/gin"})
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/status"})
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"})
-
-	p.genMessage(generatedFile, file.allMessages)
-	p.genEnum(generatedFile, file.allEnums)
-
-	for _, service := range file.Services {
-		p.generateService(generatedFile, service)
-	}
+	f *protogen.GeneratedFile
 }
 
-func (p *ProtocPlugin) generateService(generatedFile *protogen.GeneratedFile, service *protogen.Service) {
-	opts := service.Desc.Options().(*descriptorpb.ServiceOptions)
-	if opts.GetDeprecated() {
-		generatedFile.P("Deprecated: Do not use.")
+// NewService parses protogen.Service and returns it as Service.
+func NewService(f *protogen.GeneratedFile, service *protogen.Service) *Service {
+	s := &Service{
+		ServiceName:     service.GoName,
+		LeadingComments: string(appendDeprecationSuffix(service.Comments.Leading, service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated())),
+		f:               f,
 	}
 
-	s := &ServiceInfo{
-		ServiceName: service.GoName,
-	}
-	for _, method := range service.Methods {
-		s.Methods = append(s.Methods, genMethod(generatedFile, method))
+	for _, m := range service.Methods {
+		s.Methods = append(s.Methods, newMethod(f, m))
 	}
 
-	generatedFile.P(executeTemplate("serviceInterfaceTempl", serviceInterfaceTempl, s))
-	generatedFile.P(executeTemplate("unimplementServerTempl", unimplementServerTempl, s))
-	generatedFile.P(executeTemplate("serviceDecoratorTempl", serviceDecoratorTempl, s))
-	generatedFile.P(executeTemplate("registerTempl", registerTempl, s))
-}
-
-func (p *ProtocPlugin) genEnum(generatedFile *protogen.GeneratedFile, enums []*protogen.Enum) {
-	for _, enum := range enums {
-		leadingComments := appendDeprecationSuffix(enum.Comments.Leading,
-			enum.Desc.Options().(*descriptorpb.EnumOptions).GetDeprecated())
-		generatedFile.P(leadingComments, "type ", enum.GoIdent, " int32")
-
-		// Enum value constants.
-		generatedFile.P("const (")
-		for _, value := range enum.Values {
-			generatedFile.Annotate(value.GoIdent.GoName, value.Location)
-			leadingComments := appendDeprecationSuffix(value.Comments.Leading,
-				value.Desc.Options().(*descriptorpb.EnumValueOptions).GetDeprecated())
-			generatedFile.P(leadingComments,
-				value.GoIdent, " ", enum.GoIdent, " = ", value.Desc.Number(),
-				trailingComment(value.Comments.Trailing))
-		}
-		generatedFile.P(")")
-		generatedFile.P()
-	}
-}
-
-// appendDeprecationSuffix optionally appends a deprecation notice as a suffix.
-func appendDeprecationSuffix(prefix protogen.Comments, deprecated bool) protogen.Comments {
-	if !deprecated {
-		return prefix
-	}
-	if prefix != "" {
-		prefix += "\n"
-	}
-	return prefix + " Deprecated: Do not use.\n"
-}
-
-// trailingComment is like protogen.Comments, but lacks a trailing newline.
-type trailingComment protogen.Comments
-
-func (c trailingComment) String() string {
-	s := strings.TrimSuffix(protogen.Comments(c).String(), "\n")
-	if strings.Contains(s, "\n") {
-		// We don't support multi-lined trailing comments as it is unclear
-		// how to best render them in the generated code.
-		return ""
-	}
 	return s
 }
 
-func (p *ProtocPlugin) genMessage(generatedFile *protogen.GeneratedFile, messages []*protogen.Message) {
-	type structTag [][2]string
-	for _, msg := range messages {
-		leadingComments := msg.Comments.Leading.String()
-		if leadingComments == "" {
-			leadingComments = "\n"
-		}
-		generatedFile.P(leadingComments, "type ", msg.GoIdent.GoName, " struct {\n")
-		for _, field := range msg.Fields {
-			fieldName := field.GoName
-			fieldType, isPointer := fieldGoType(generatedFile, field)
-			if isPointer {
-				fieldType = "*" + fieldType
-			}
-
-			var tags []string
-			trailingComment := field.Comments.Trailing.String()
-			tags = append(tags, fmt.Sprintf(`json:"%s,omitempty"`, field.Desc.TextName()))
-
-			if trailingComment != "" {
-				trailingComment = strings.TrimPrefix(trailingComment, "//")
-				rawTags := strings.Split(trailingComment, " ")
-				for _, rt := range rawTags {
-					res := strings.Split(strings.TrimSpace(rt), ":")
-					if len(res) == 2 {
-						tags = append(tags, fmt.Sprintf(`%s:"%s"`, res[0], strings.TrimFunc(res[1], func(r rune) bool {
-							return r == '"'
-						})))
-					}
-				}
-			}
-
-			generatedFile.P(fmt.Sprintf("%s %s %s", fieldName, fieldType, fmt.Sprintf(" `%s`", strings.Join(tags, " "))))
-		}
-		generatedFile.P("}")
-	}
-}
-
-// fieldGoType returns the Go type used for a field.
-//
-// If it returns pointer=true, the struct field is a pointer to the type.
-func fieldGoType(g *protogen.GeneratedFile, field *protogen.Field) (goType string, pointer bool) {
-	if field.Desc.IsWeak() {
-		return "struct{}", false
-	}
-
-	pointer = field.Desc.HasPresence()
-	switch field.Desc.Kind() {
-	case protoreflect.BoolKind:
-		goType = "bool"
-	case protoreflect.EnumKind:
-		goType = g.QualifiedGoIdent(field.Enum.GoIdent)
-	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
-		goType = "int32"
-	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
-		goType = "uint32"
-	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
-		goType = "int64"
-	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
-		goType = "uint64"
-	case protoreflect.FloatKind:
-		goType = "float32"
-	case protoreflect.DoubleKind:
-		goType = "float64"
-	case protoreflect.StringKind:
-		goType = "string"
-	case protoreflect.BytesKind:
-		goType = "[]byte"
-		pointer = false // rely on nullability of slices for presence
-	case protoreflect.MessageKind, protoreflect.GroupKind:
-		goType = "*" + g.QualifiedGoIdent(field.Message.GoIdent)
-		pointer = false // pointer captured as part of the type
-	}
-	switch {
-	case field.Desc.IsList():
-		return "[]" + goType, false
-	case field.Desc.IsMap():
-		keyType, _ := fieldGoType(g, field.Message.Fields[0])
-		valType, _ := fieldGoType(g, field.Message.Fields[1])
-		return fmt.Sprintf("map[%v]%v", keyType, valType), false
-	}
-	return goType, pointer
-}
-
-func genMethod(g *protogen.GeneratedFile, m *protogen.Method) *Method {
-	// try to parse http rules
-	rule, ok := proto.GetExtension(m.Desc.Options(), annotations.E_Http).(*annotations.HttpRule)
-	if rule != nil && ok {
-		method := &Method{
-			Name:     m.GoName,
-			Request:  g.QualifiedGoIdent(m.Input.GoIdent),  //m.Input.GoIdent.GoName,
-			Response: g.QualifiedGoIdent(m.Output.GoIdent), //m.Output.GoIdent.GoName,
-			Comments: m.Comments.Leading.String(),
-		}
-
-		method.HTTPRules = append(method.HTTPRules, extractHTTPRule(rule))
-		for _, bind := range rule.AdditionalBindings {
-			method.HTTPRules = append(method.HTTPRules, extractHTTPRule(bind))
-		}
-
-	findHeaderParam:
-		for _, item := range m.Input.Fields {
-			trailingComment := strings.TrimPrefix(item.Comments.Trailing.String(), "//")
-			rawTags := strings.Split(trailingComment, " ")
-			for _, rt := range rawTags {
-				res := strings.Split(strings.TrimSpace(rt), ":")
-				if len(res) == 2 && res[0] == "header" {
-					// gin header tag
-					method.HasHeaderParamInRequest = true
-					break findHeaderParam
-				}
-			}
-		}
-
-		return method
-	}
-
-	panic(fmt.Sprintf("no http rules found for method: %s", m.GoName))
-}
-
-func extractHTTPRule(rule *annotations.HttpRule) *HTTPRule {
-	var method, path string
-	switch pattern := rule.Pattern.(type) {
-	case *annotations.HttpRule_Get:
-		path = pattern.Get
-		method = http.MethodGet
-	case *annotations.HttpRule_Put:
-		path = pattern.Put
-		method = http.MethodPut
-	case *annotations.HttpRule_Post:
-		path = pattern.Post
-		method = http.MethodPost
-	case *annotations.HttpRule_Delete:
-		path = pattern.Delete
-		method = http.MethodDelete
-	case *annotations.HttpRule_Patch:
-		path = pattern.Patch
-		method = http.MethodPatch
-	case *annotations.HttpRule_Custom:
-		path = pattern.Custom.Path
-		method = pattern.Custom.Kind
-	}
-
-	var hasPathParam bool
-	paths := strings.Split(path, "/")
-	for idx, item := range paths {
-		if len(item) > 0 && (item[0] == '{' && item[len(item)-1] == '}') {
-			paths[idx] = ":" + item[1:len(item)-1]
-			hasPathParam = true
-		}
-	}
-	path = strings.Join(paths, "/")
-
-	return &HTTPRule{Method: method, Path: path, HasPathParam: hasPathParam}
-}
-
-// ServiceInfo describes the service info.
-type ServiceInfo struct {
-	ServiceName string
-	Methods     []*Method
-}
-
-// Method service's method
-type Method struct {
-	Name                    string
-	Request                 string
-	Response                string
-	HTTPRules               []*HTTPRule
-	Comments                string
-	HasHeaderParamInRequest bool
-}
-
-// HasPathParam returns true if there is at least one http rule contains path param.
-func (m Method) HasPathParam() bool {
-	for _, r := range m.HTTPRules {
-		if r.HasPathParam {
-			return true
-		}
-	}
-
-	return false
-}
-
-// HTTPRule http rule
-type HTTPRule struct {
-	Method       string
-	Path         string
-	HasPathParam bool
-}
-
-// Message message
-type Message struct {
-	*protogen.Message
-}
-
-// Name returns the message's name
-func (m *Message) Name() string {
-	return m.GoIdent.GoName
-}
-
-func executeTemplate(name string, tmpl string, data interface{}) string {
-	t := template.Must(template.New(name).Parse(tmpl))
-	var buf bytes.Buffer
-	if err := t.Execute(&buf, data); err != nil {
-		panic(fmt.Sprintf("failed to render template: %v", err))
-	}
-	return buf.String()
+// P print generated code into genereted file
+func (s *Service) P() {
+	s.f.P(s.genServiceInterface())
+	s.f.P(s.genUnimplementedServer())
+	s.f.P(s.genServiceDecorator())
+	s.f.P(s.genServiceRegister())
 }
 
 var serviceInterfaceTempl = `
@@ -372,21 +137,29 @@ var serviceInterfaceTempl = `
 	type {{.ServiceName}}Server interface {
 	{{- range .Methods}}
 		{{.Comments -}}
-		{{.Name}}(context.Context, *{{.Request}}) (*{{.Response}}, error)
+		{{.Name}}(context.Context, *{{.Request.GoName}}) (*{{.Response.GoName}}, error)
 	{{- end}}}
 `
 
-var unimplementServerTempl = `
+func (s *Service) genServiceInterface() string {
+	return executeTemplate("serviceInterfaceTempl", serviceInterfaceTempl, s)
+}
+
+var unimplementedServerTempl = `
 	{{$serviceName := .ServiceName}}
 	// Unimplemented{{$serviceName}}Server can be embedded to have forward compatible implementations.
 	type Unimplemented{{$serviceName}}Server struct {}
 
 	{{- range .Methods}}
-	func (s *Unimplemented{{$serviceName}}Server) {{.Name}}(context.Context, *{{.Request}}) (*{{.Response}}, error) {
+	func (s *Unimplemented{{$serviceName}}Server) {{.Name}}(context.Context, *{{.Request.GoName}}) (*{{.Response.GoName}}, error) {
 		return nil, status.Errorf(status.Unimplemented, "method {{.Name}} not implemented")
 	}
 	{{ end }}		
 	`
+
+func (s *Service) genUnimplementedServer() string {
+	return executeTemplate("unimplementedServerTempl", unimplementedServerTempl, s)
+}
 
 var serviceDecoratorTempl = `
 	{{$serviceName := .ServiceName}}
@@ -396,7 +169,7 @@ var serviceDecoratorTempl = `
 
 	{{range .Methods}}
 		{{$methodName := .Name}}
-		{{$requestParamType := .Request}}
+		{{$requestParamType := .Request.GoName}}
 		{{$hasHeaderParam := .HasHeaderParamInRequest}}
 		{{range $index, $rule := .HTTPRules}}
 			func (s default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
@@ -444,6 +217,10 @@ var serviceDecoratorTempl = `
 	{{end}}
 `
 
+func (s *Service) genServiceDecorator() string {
+	return executeTemplate("serviceDecoratorTempl", serviceDecoratorTempl, s)
+}
+
 var registerTempl = `
 	{{$serviceName := .ServiceName}}
 	// Register{{$serviceName}}Server registers the http handlers for service {{$serviceName}} to "router".
@@ -458,19 +235,358 @@ var registerTempl = `
 	}
 `
 
-var clientTempl = `
-	type {{$serviceName}}Client interface {
-		{{- range .Methods}}
-			{{.Comments -}}
-			{{.Name}}(context.Context, *{{.Request}}) (*{{.Response}}, error)
-		{{end}}
+func (s *Service) genServiceRegister() string {
+	return executeTemplate("registerTempl", registerTempl, s)
+}
+
+// Method service's method
+type Method struct {
+	Name                    string
+	Request                 *Message
+	Response                *Message
+	HTTPRules               []*HTTPRule
+	Comments                string
+	HasHeaderParamInRequest bool
+}
+
+func newMethod(f *protogen.GeneratedFile, m *protogen.Method) *Method {
+	// try to parse http rules
+	rule, ok := proto.GetExtension(m.Desc.Options(), annotations.E_Http).(*annotations.HttpRule)
+	if rule != nil && ok {
+		requset := NewMessage(f, m.Input)
+		response := NewMessage(f, m.Output)
+
+		method := &Method{
+			Name:     m.GoName,
+			Request:  requset,  //f.QualifiedGoIdent(m.Input.GoIdent),
+			Response: response, //f.QualifiedGoIdent(m.Output.GoIdent),
+			Comments: m.Comments.Leading.String(),
+		}
+
+		method.HTTPRules = append(method.HTTPRules, extractHTTPRule(rule))
+		for _, bind := range rule.AdditionalBindings {
+			method.HTTPRules = append(method.HTTPRules, extractHTTPRule(bind))
+		}
+
+	findHeaderParam:
+		for _, item := range m.Input.Fields {
+			trailingComment := strings.TrimPrefix(item.Comments.Trailing.String(), "//")
+			rawTags := strings.Split(trailingComment, " ")
+			for _, rt := range rawTags {
+				res := strings.Split(strings.TrimSpace(rt), ":")
+				if len(res) == 2 && res[0] == "header" {
+					// gin header tag
+					method.HasHeaderParamInRequest = true
+					break findHeaderParam
+				}
+			}
+		}
+
+		return method
 	}
 
-	type {{$serviceName}}Client struct {
-		cc *grpc.ClientConn
+	panic(fmt.Sprintf("no http rules found for method: %s", m.GoName))
+}
+
+// HasPathParam returns true if there is at least one http rule contains path param.
+func (m Method) HasPathParam() bool {
+	for _, r := range m.HTTPRules {
+		if r.HasPathParam {
+			return true
+		}
 	}
 
-	func NewAccountCreatorClient(cc *grpc.ClientConn) AccountCreatorClient {
-		return &accountCreatorClient{cc}
+	return false
+}
+
+// HTTPRule http rule
+type HTTPRule struct {
+	Method       string
+	Path         string
+	HasPathParam bool
+}
+
+func extractHTTPRule(rule *annotations.HttpRule) *HTTPRule {
+	var method, path string
+	switch pattern := rule.Pattern.(type) {
+	case *annotations.HttpRule_Get:
+		path = pattern.Get
+		method = http.MethodGet
+	case *annotations.HttpRule_Put:
+		path = pattern.Put
+		method = http.MethodPut
+	case *annotations.HttpRule_Post:
+		path = pattern.Post
+		method = http.MethodPost
+	case *annotations.HttpRule_Delete:
+		path = pattern.Delete
+		method = http.MethodDelete
+	case *annotations.HttpRule_Patch:
+		path = pattern.Patch
+		method = http.MethodPatch
+	case *annotations.HttpRule_Custom:
+		path = pattern.Custom.Path
+		method = pattern.Custom.Kind
 	}
-`
+
+	var hasPathParam bool
+	paths := strings.Split(path, "/")
+	for idx, item := range paths {
+		if len(item) > 0 && (item[0] == '{' && item[len(item)-1] == '}') {
+			paths[idx] = ":" + item[1:len(item)-1]
+			hasPathParam = true
+		}
+	}
+	path = strings.Join(paths, "/")
+
+	return &HTTPRule{Method: method, Path: path, HasPathParam: hasPathParam}
+}
+
+// Enum describes an enum.
+type Enum struct {
+	GoIdent         string // name of the generated Go type: the enum's name
+	LeadingComments string
+	Values          []EnumValue
+
+	f *protogen.GeneratedFile
+}
+
+// EnumValue represents a enum value.
+type EnumValue struct {
+	LeadingComments string
+	TrailingComment string
+	GoIdent         string // name of the generated Go type
+	Type            string // Go type
+	Number          int32  // the enum value as an integer.
+}
+
+// NewEnum construct an enum.
+func NewEnum(f *protogen.GeneratedFile, enum *protogen.Enum) *Enum {
+	leadingComments := appendDeprecationSuffix(enum.Comments.Leading,
+		enum.Desc.Options().(*descriptorpb.EnumOptions).GetDeprecated())
+
+	enumInfo := &Enum{
+		GoIdent:         f.QualifiedGoIdent(enum.GoIdent),
+		LeadingComments: leadingComments.String(),
+		f:               f,
+	}
+
+	for _, value := range enum.Values {
+		// f.Annotate(value.GoIdent.GoName, value.Location)
+		leadingComments := appendDeprecationSuffix(value.Comments.Leading,
+			value.Desc.Options().(*descriptorpb.EnumValueOptions).GetDeprecated())
+
+		enumInfo.Values = append(enumInfo.Values, EnumValue{
+			LeadingComments: leadingComments.String(),
+			TrailingComment: trailingComment(value.Comments.Trailing).String(),
+			GoIdent:         f.QualifiedGoIdent(value.GoIdent),
+			Type:            f.QualifiedGoIdent(enum.GoIdent),
+			Number:          int32(value.Desc.Number()),
+		})
+	}
+
+	return enumInfo
+}
+
+// P generates and print enum definition code into generated file.
+func (e Enum) P() {
+	res := executeTemplate("enum", `{{.LeadingComments}} type {{.GoIdent}} int32
+
+	const ({{range .Values}}
+		{{.LeadingComments -}}
+		{{.GoIdent}} {{.Type}} = {{.Number}} {{.TrailingComment}}
+		{{- end}}
+	)`, e)
+
+	e.f.P(res)
+}
+
+// Message describes the message.
+type Message struct {
+	GoName          string
+	LeadingComments string  // leading comments
+	Fields          []Field // all fields
+
+	f *protogen.GeneratedFile
+}
+
+// NewMessage new message info
+func NewMessage(f *protogen.GeneratedFile, m *protogen.Message) *Message {
+	leadingComments := m.Comments.Leading.String()
+	if leadingComments == "" {
+		leadingComments = "\n"
+	}
+
+	msgInfo := &Message{
+		LeadingComments: leadingComments,
+		GoName:          f.QualifiedGoIdent(m.GoIdent),
+		f:               f,
+	}
+
+	for _, field := range m.Fields {
+		fieldType, isPointer := fieldGoType(f, field)
+		if isPointer {
+			fieldType = "*" + fieldType
+		}
+
+		fieldInfo := Field{
+			GoName: field.GoName,
+			GoType: fieldType,
+			Tags: []*Tag{
+				{
+					Key:   "json",
+					Value: fmt.Sprintf(`%s,omitempty`, field.Desc.TextName()),
+				},
+			},
+			LeadingComments: field.Comments.Leading.String(),
+		}
+
+		// var tags []string
+		trailingComment := field.Comments.Trailing.String()
+
+		if trailingComment != "" {
+			// try to extract user customized tags from trailing comments
+			trailingComment = strings.TrimPrefix(trailingComment, "//")
+			rawTags := strings.Split(trailingComment, " ")
+			for _, rt := range rawTags {
+				res := strings.Split(strings.TrimSpace(rt), ":")
+				if len(res) == 2 {
+					fieldInfo.Tags = append(fieldInfo.Tags, &Tag{
+						Key:   res[0],
+						Value: strings.Trim(res[1], `"`),
+					})
+				}
+			}
+		}
+
+		msgInfo.Fields = append(msgInfo.Fields, fieldInfo)
+	}
+
+	return msgInfo
+}
+
+// P generates definition code for message and print it into generated file.
+func (mi Message) P() {
+
+	fields := []string{}
+	for _, field := range mi.Fields {
+		fields = append(fields, field.String())
+	}
+
+	res := executeTemplate("message_type",
+		`{{.LeadingComments -}}
+		type {{.GoName}} struct {
+			{{.Fields}}
+		}`,
+		map[string]interface{}{
+			"MessageInfo":     mi,
+			"GoName":          mi.GoName,
+			"LeadingComments": mi.LeadingComments,
+			"Fields":          strings.Join(fields, "\n"),
+		})
+
+	mi.f.P(res)
+}
+
+// FieldWithTag returns all fileds that has specified tag.
+func (mi Message) FieldWithTag(tagName string) []Field {
+	var fields []Field
+	for idx := range mi.Fields {
+		if mi.Fields[idx].TagByName(tagName) != nil {
+			fields = append(fields, mi.Fields[idx])
+		}
+	}
+
+	return fields
+}
+
+// FieldWithHeaderTag returns all fields that have tag `header`.
+func (mi Message) FieldWithHeaderTag() []Field {
+	return mi.FieldWithTag("head")
+}
+
+// FieldWithQueryTag returns all fields that have tag `query`.
+func (mi Message) FieldWithQueryTag() []Field {
+	return mi.FieldWithTag("query")
+}
+
+// FieldWithJSONTag returns all fields that have tag `json`.
+func (mi Message) FieldWithJSONTag() []Field {
+	var fields []Field
+	for idx := range mi.Fields {
+		value := mi.Fields[idx].TagByName("json")
+		if value != nil && value.Value != "-" {
+			fields = append(fields, mi.Fields[idx])
+		}
+	}
+
+	return fields
+}
+
+// FieldWithPathTag returns all fields that have tag `path`.
+func (mi Message) FieldWithPathTag() []Field {
+	return mi.FieldWithTag("path")
+}
+
+// FieldWithFormTag returns all fields that have tag `form`.
+func (mi Message) FieldWithFormTag() []Field {
+	return mi.FieldWithTag("form")
+}
+
+// Field describes field in structure.
+type Field struct {
+	GoName string // filed name
+
+	GoType string // field type, e.g int32, string, bool
+	// field tags
+
+	LeadingComments string
+	Tags            []*Tag
+}
+
+// TagByName finds tag by name.
+func (fi Field) TagByName(tagName string) *Tag {
+	for _, item := range fi.Tags {
+		if item.Key == tagName {
+			return &Tag{
+				Key:   item.Key,
+				Value: item.Value,
+			}
+		}
+	}
+	return nil
+}
+
+// TagStr constructs and returns the formated tag string.
+func (fi Field) TagStr() string {
+	if len(fi.Tags) == 0 {
+		return ""
+	}
+
+	var tagStr []string
+	for _, item := range fi.Tags {
+		tagStr = append(tagStr, item.String())
+	}
+
+	return fmt.Sprintf("`%s`", strings.Join(tagStr, " "))
+}
+
+// String returns filed info as string.
+//
+// e.g: Name string `json:"name"`
+func (fi Field) String() string {
+	return fmt.Sprintf("%s %s %s", fi.GoName, fi.GoType, fi.TagStr())
+}
+
+// Tag describes tag info for structure filed.
+//
+// e.g: json:"user_id"
+type Tag struct {
+	Key   string
+	Value string
+}
+
+// String returns tag info as string.
+func (ti Tag) String() string {
+	return fmt.Sprintf(`%s:"%s"`, ti.Key, ti.Value)
+}
