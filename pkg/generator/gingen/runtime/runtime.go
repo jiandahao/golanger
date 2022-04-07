@@ -28,6 +28,7 @@ func defaultHTTPErrorHandler(ctx *gin.Context, err error) {
 	e, ok := err.(*status.ErrorDetails)
 	if !ok {
 		e, _ = status.FromCode(status.Internal)
+		e.Details = err.Error()
 	}
 
 	data := responseData{

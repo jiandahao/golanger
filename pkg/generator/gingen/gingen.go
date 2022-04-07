@@ -46,10 +46,34 @@ func (p *ProtocPlugin) GenerateFile(file *FileInfo) {
 	generatedFile.P(`package ` + file.GoPackageName)
 
 	// Using QualifiedGoIdent to make referenced Packages to be automatically imported.
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "context"})
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/gin-gonic/gin"})
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/status"})
-	generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"})
+	importedPath := []string{
+		"fmt",
+		"encoding/json",
+		"strings",
+		"io/ioutil",
+		"net/http",
+		"bytes",
+		"net/url",
+		"context",
+		"github.com/gin-gonic/gin",
+		"google.golang.org/grpc/codes",
+		"google.golang.org/grpc/status",
+		"github.com/jiandahao/golanger/pkg/generator/gingen/runtime",
+	}
+
+	for _, pkg := range importedPath {
+		generatedFile.QualifiedGoIdent(protogen.GoIdent{GoImportPath: protogen.GoImportPath(pkg)})
+	}
+
+	generatedFile.P(`
+		var _ fmt.GoStringer
+		var _ json.Marshaler
+		var _ strings.Builder
+		var _ = ioutil.Discard
+		var _ http.RoundTripper
+		var _ bytes.Buffer
+		var _ url.Values
+	`)
 
 	for _, item := range file.AllMessages {
 		m := NewMessage(generatedFile, item)
@@ -130,6 +154,8 @@ func (s *Service) P() {
 	s.f.P(s.genUnimplementedServer())
 	s.f.P(s.genServiceDecorator())
 	s.f.P(s.genServiceRegister())
+	s.f.P(s.genClientInterface())
+	s.f.P(s.genDefaultClient())
 }
 
 var serviceInterfaceTempl = `
@@ -152,7 +178,7 @@ var unimplementedServerTempl = `
 
 	{{- range .Methods}}
 	func (s *Unimplemented{{$serviceName}}Server) {{.Name}}(context.Context, *{{.Request.GoName}}) (*{{.Response.GoName}}, error) {
-		return nil, status.Errorf(status.Unimplemented, "method {{.Name}} not implemented")
+		return nil, status.Errorf(codes.Unimplemented, "method {{.Name}} not implemented")
 	}
 	{{ end }}		
 	`
@@ -170,37 +196,37 @@ var serviceDecoratorTempl = `
 	{{range .Methods}}
 		{{$methodName := .Name}}
 		{{$requestParamType := .Request.GoName}}
-		{{$hasHeaderParam := .HasHeaderParamInRequest}}
+		{{$hasHeaderParam := .Request.HasHeaderParam}}
 		{{range $index, $rule := .HTTPRules}}
 			func (s default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
 				var req {{$requestParamType}}
 				{{ if $rule.HasPathParam }}
 				if err := ctx.ShouldBindUri(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
 					return
 				}
 				{{ end }}
 
 				{{ if $hasHeaderParam }}
 				if err := ctx.ShouldBindHeader(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
 					return
 				}
 				{{end}}
 
 				{{ if eq $rule.Method "GET" "DELETE" }}
 				if err := ctx.ShouldBindQuery(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
 					return
 				}
 				{{else if eq $rule.Method "POST" "PUT" }}
 				if err := ctx.ShouldBindJSON(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
 					return
 				}
 				{{else}}
 				if err := ctx.ShouldBind(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error())) 
+					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
 					return
 				}
 				{{end}}
@@ -239,26 +265,116 @@ func (s *Service) genServiceRegister() string {
 	return executeTemplate("registerTempl", registerTempl, s)
 }
 
+var clientInterfaceTempl = `
+	// {{.ServiceName}}Client is the client API for for {{.ServiceName}} service.
+	type {{.ServiceName}}Client interface {
+	{{- range .Methods}}
+		{{.Comments -}}
+		{{.Name}}(context.Context, *{{.Request.GoName}}) (*{{.Response.GoName}}, error)
+	{{- end}}}
+`
+
+func (s *Service) genClientInterface() string {
+	return executeTemplate("clientInterfaceTempl", clientInterfaceTempl, s)
+}
+
+var defaultClientTempl = `
+	{{$serviceName := .ServiceName}}
+	type default{{$serviceName}}Client struct {
+		cc *http.Client
+		host string
+	}
+
+	// New{{$serviceName}}Client creates a client API for {{$serviceName}} service.
+	func New{{$serviceName}}Client(host string, cc *http.Client) {{$serviceName}}Client {
+		return &default{{$serviceName}}Client{cc: cc, host: strings.TrimSuffix(host, "/")}
+	}
+	
+	{{range .Methods}}
+		{{$methodName := .Name}}
+		{{$requestParamType := .Request.GoName}}
+		{{$rule := index .HTTPRules 0}}
+		{{$header := .Request.FieldWithTag "header"}}
+		{{$body := .Request.FieldWithTag "json"}}
+		{{$query := .Request.FieldWithTag "form"}}
+		{{$request := .Request}}
+		func (c *default{{$serviceName}}Client) {{$methodName}} (ctx context.Context, req *{{.Request.GoName}}) (*{{.Response.GoName}}, error) {
+			endpoint := fmt.Sprintf("%s%s", c.host, "{{$rule.Path}}")
+			{{- range $key, $value := $rule.PathParams}}
+				endpoint = strings.ReplaceAll(endpoint, ":{{$key}}", fmt.Sprint(req.{{$value}}))
+			{{- end}}
+
+			{{if eq $rule.Method "POST" "PUT" "PATCH"}}
+				data, err := json.Marshal(req)
+				if err != nil {
+					return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+				}
+
+				hreq, err := http.NewRequest("{{$rule.Method}}", endpoint, bytes.NewBuffer(data))
+			{{- else}}
+				hreq , err := http.NewRequest("{{$rule.Method}}", endpoint, nil)
+			{{- end}}
+			if err != nil {
+				return nil, fmt.Errorf("failed to create request with error: %s", err)
+			}
+
+			hreq.Header.Set("Content-Type", "application/json")
+			{{- range $header}}
+				{{$tag := .TagByName "header"}} hreq.Header.Add("{{$tag.Value}}", req.{{.GoName}})
+			{{- end}}
+
+			{{if $query -}}
+				var queries = url.Values{}
+				{{- range $query }}
+					{{$tag := .TagByName "form"}} queries.Add("{{$tag.Value}}", req.{{.GoName}})
+				{{- end}}
+				hreq.URL.RawQuery = queries.Encode()
+			{{end}}
+
+			res, err := c.cc.Do(hreq)
+			if err != nil {
+				return nil, err
+			}
+			defer res.Body.Close()
+
+			respBody, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				return nil, err
+			}
+
+			var resp {{.Response.GoName}}
+			if err := json.Unmarshal(respBody, &resp); err != nil {
+				return nil, err
+			}
+
+			return &resp, nil
+		}
+	{{end}}
+`
+
+func (s *Service) genDefaultClient() string {
+	return executeTemplate("default_client", defaultClientTempl, s)
+}
+
 // Method service's method
 type Method struct {
-	Name                    string
-	Request                 *Message
-	Response                *Message
-	HTTPRules               []*HTTPRule
-	Comments                string
-	HasHeaderParamInRequest bool
+	Name      string
+	Request   *Message
+	Response  *Message
+	HTTPRules []*HTTPRule
+	Comments  string
 }
 
 func newMethod(f *protogen.GeneratedFile, m *protogen.Method) *Method {
 	// try to parse http rules
 	rule, ok := proto.GetExtension(m.Desc.Options(), annotations.E_Http).(*annotations.HttpRule)
 	if rule != nil && ok {
-		requset := NewMessage(f, m.Input)
+		request := NewMessage(f, m.Input)
 		response := NewMessage(f, m.Output)
 
 		method := &Method{
 			Name:     m.GoName,
-			Request:  requset,  //f.QualifiedGoIdent(m.Input.GoIdent),
+			Request:  request,  //f.QualifiedGoIdent(m.Input.GoIdent),
 			Response: response, //f.QualifiedGoIdent(m.Output.GoIdent),
 			Comments: m.Comments.Leading.String(),
 		}
@@ -268,16 +384,11 @@ func newMethod(f *protogen.GeneratedFile, m *protogen.Method) *Method {
 			method.HTTPRules = append(method.HTTPRules, extractHTTPRule(bind))
 		}
 
-	findHeaderParam:
-		for _, item := range m.Input.Fields {
-			trailingComment := strings.TrimPrefix(item.Comments.Trailing.String(), "//")
-			rawTags := strings.Split(trailingComment, " ")
-			for _, rt := range rawTags {
-				res := strings.Split(strings.TrimSpace(rt), ":")
-				if len(res) == 2 && res[0] == "header" {
-					// gin header tag
-					method.HasHeaderParamInRequest = true
-					break findHeaderParam
+		for idx := range method.HTTPRules {
+			for k := range method.HTTPRules[idx].PathParams {
+				field, ok := request.QueryFieldByTagKeyAndValue("json", k)
+				if ok {
+					method.HTTPRules[idx].PathParams[k] = field.GoName
 				}
 			}
 		}
@@ -304,6 +415,7 @@ type HTTPRule struct {
 	Method       string
 	Path         string
 	HasPathParam bool
+	PathParams   map[string]string
 }
 
 func extractHTTPRule(rule *annotations.HttpRule) *HTTPRule {
@@ -329,17 +441,19 @@ func extractHTTPRule(rule *annotations.HttpRule) *HTTPRule {
 		method = pattern.Custom.Kind
 	}
 
-	var hasPathParam bool
+	var pathParams = make(map[string]string)
 	paths := strings.Split(path, "/")
 	for idx, item := range paths {
 		if len(item) > 0 && (item[0] == '{' && item[len(item)-1] == '}') {
-			paths[idx] = ":" + item[1:len(item)-1]
-			hasPathParam = true
+			holder := item[1 : len(item)-1]
+			paths[idx] = ":" + holder
+			// pathParams = append(pathParams, item[1:len(item)-1])
+			pathParams[holder] = toCamel(holder)
 		}
 	}
 	path = strings.Join(paths, "/")
 
-	return &HTTPRule{Method: method, Path: path, HasPathParam: hasPathParam}
+	return &HTTPRule{Method: method, Path: path, HasPathParam: len(pathParams) > 0, PathParams: pathParams}
 }
 
 // Enum describes an enum.
@@ -406,8 +520,7 @@ type Message struct {
 	GoName          string
 	LeadingComments string  // leading comments
 	Fields          []Field // all fields
-
-	f *protogen.GeneratedFile
+	f               *protogen.GeneratedFile
 }
 
 // NewMessage new message info
@@ -488,6 +601,11 @@ func (mi Message) P() {
 	mi.f.P(res)
 }
 
+// HasHeaderParam returns true if there is at least one header param.
+func (mi Message) HasHeaderParam() bool {
+	return len(mi.FieldWithHeaderTag()) > 0
+}
+
 // FieldWithTag returns all fileds that has specified tag.
 func (mi Message) FieldWithTag(tagName string) []Field {
 	var fields []Field
@@ -502,7 +620,7 @@ func (mi Message) FieldWithTag(tagName string) []Field {
 
 // FieldWithHeaderTag returns all fields that have tag `header`.
 func (mi Message) FieldWithHeaderTag() []Field {
-	return mi.FieldWithTag("head")
+	return mi.FieldWithTag("header")
 }
 
 // FieldWithQueryTag returns all fields that have tag `query`.
@@ -533,6 +651,17 @@ func (mi Message) FieldWithFormTag() []Field {
 	return mi.FieldWithTag("form")
 }
 
+// QueryFieldByTagKeyAndValue returns field that has tag which key_name=`key` and value = `value`
+func (mi Message) QueryFieldByTagKeyAndValue(key, value string) (Field, bool) {
+	for idx := range mi.Fields {
+		if mi.Fields[idx].TagByName(key) != nil && mi.Fields[idx].TagByValue(value) != nil {
+			return mi.Fields[idx], true
+		}
+	}
+
+	return Field{}, false
+}
+
 // Field describes field in structure.
 type Field struct {
 	GoName string // filed name
@@ -548,6 +677,19 @@ type Field struct {
 func (fi Field) TagByName(tagName string) *Tag {
 	for _, item := range fi.Tags {
 		if item.Key == tagName {
+			return &Tag{
+				Key:   item.Key,
+				Value: item.Value,
+			}
+		}
+	}
+	return nil
+}
+
+// TagByValue finds tag by value.
+func (fi Field) TagByValue(tagValue string) *Tag {
+	for _, item := range fi.Tags {
+		if item.Value == tagValue {
 			return &Tag{
 				Key:   item.Key,
 				Value: item.Value,

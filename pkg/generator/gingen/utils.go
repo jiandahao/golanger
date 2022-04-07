@@ -88,3 +88,12 @@ func (c trailingComment) String() string {
 	}
 	return s
 }
+
+func toCamel(s string) string {
+	res := strings.Split(s, "_")
+	for idx := range res {
+		res[idx] = strings.Title(res[idx])
+	}
+
+	return strings.Join(res, "")
+}

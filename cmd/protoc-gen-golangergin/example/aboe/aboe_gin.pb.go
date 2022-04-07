@@ -3,15 +3,31 @@
 package example
 
 import (
+	bytes "bytes"
 	context "context"
+	json "encoding/json"
+	fmt "fmt"
 	gin "github.com/gin-gonic/gin"
 	runtime "github.com/jiandahao/golanger/pkg/generator/gingen/runtime"
-	status "github.com/jiandahao/golanger/pkg/generator/gingen/status"
 	status1 "google.golang.org/genproto/googleapis/rpc/status"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	ioutil "io/ioutil"
+	http "net/http"
+	url "net/url"
+	strings "strings"
 )
+
+var _ fmt.GoStringer
+var _ json.Marshaler
+var _ strings.Builder
+var _ = ioutil.Discard
+var _ http.RoundTripper
+var _ bytes.Buffer
+var _ url.Values
 
 type ErrorResponse struct {
 	CorrelationId string       `json:"correlationId,omitempty"`
@@ -256,95 +272,95 @@ type ABitOfEverythingServiceServer interface {
 type UnimplementedABitOfEverythingServiceServer struct{}
 
 func (s *UnimplementedABitOfEverythingServiceServer) Create(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(status.Unimplemented, "method Create not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CreateBody(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(status.Unimplemented, "method CreateBody not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBody not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CreateBook(context.Context, *CreateBookRequest) (*Book, error) {
-	return nil, status.Errorf(status.Unimplemented, "method CreateBook not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBook not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) UpdateBook(context.Context, *UpdateBookRequest) (*Book, error) {
-	return nil, status.Errorf(status.Unimplemented, "method UpdateBook not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateBook not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Lookup(context.Context, *IdMessage) (*ABitOfEverything, error) {
-	return nil, status.Errorf(status.Unimplemented, "method Lookup not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method Lookup not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Update(context.Context, *ABitOfEverything) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method Update not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) UpdateV2(context.Context, *UpdateV2Request) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method UpdateV2 not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateV2 not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Delete(context.Context, *IdMessage) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method Delete not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) GetQuery(context.Context, *ABitOfEverything) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method GetQuery not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method GetQuery not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) GetRepeatedQuery(context.Context, *ABitOfEverythingRepeated) (*ABitOfEverythingRepeated, error) {
-	return nil, status.Errorf(status.Unimplemented, "method GetRepeatedQuery not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method GetRepeatedQuery not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Echo(context.Context, *StringMessage) (*StringMessage, error) {
-	return nil, status.Errorf(status.Unimplemented, "method Echo not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method Echo not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) DeepPathEcho(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(status.Unimplemented, "method DeepPathEcho not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method DeepPathEcho not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) Timeout(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method Timeout not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method Timeout not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) ErrorWithDetails(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method ErrorWithDetails not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method ErrorWithDetails not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) GetMessageWithBody(context.Context, *MessageWithBody) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method GetMessageWithBody not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessageWithBody not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) PostWithEmptyBody(context.Context, *Body) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method PostWithEmptyBody not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method PostWithEmptyBody not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckGetQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(status.Unimplemented, "method CheckGetQueryParams not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CheckGetQueryParams not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckNestedEnumGetQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(status.Unimplemented, "method CheckNestedEnumGetQueryParams not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CheckNestedEnumGetQueryParams not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckPostQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error) {
-	return nil, status.Errorf(status.Unimplemented, "method CheckPostQueryParams not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CheckPostQueryParams not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) OverwriteResponseContentType(context.Context, *emptypb.Empty) (*StringValue, error) {
-	return nil, status.Errorf(status.Unimplemented, "method OverwriteResponseContentType not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method OverwriteResponseContentType not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckExternalPathEnum(context.Context, *MessageWithPathEnum) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method CheckExternalPathEnum not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CheckExternalPathEnum not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckExternalNestedPathEnum(context.Context, *MessageWithNestedPathEnum) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method CheckExternalNestedPathEnum not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CheckExternalNestedPathEnum not implemented")
 }
 
 func (s *UnimplementedABitOfEverythingServiceServer) CheckStatus(context.Context, *emptypb.Empty) (*CheckStatusResponse, error) {
-	return nil, status.Errorf(status.Unimplemented, "method CheckStatus not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CheckStatus not implemented")
 }
 
 type defaultABitOfEverythingServiceDecorator struct {
@@ -355,12 +371,12 @@ func (s defaultABitOfEverythingServiceDecorator) Create_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -377,7 +393,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBody_0(ctx *gin.Context) 
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -394,7 +410,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBook_0(ctx *gin.Context) 
 	var req CreateBookRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -411,7 +427,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateBook_0(ctx *gin.Context) 
 	var req UpdateBookRequest
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -428,12 +444,12 @@ func (s defaultABitOfEverythingServiceDecorator) Lookup_0(ctx *gin.Context) {
 	var req IdMessage
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -450,12 +466,12 @@ func (s defaultABitOfEverythingServiceDecorator) Update_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -472,12 +488,12 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_0(ctx *gin.Context) {
 	var req UpdateV2Request
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -494,12 +510,12 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 	var req UpdateV2Request
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -516,12 +532,12 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 	var req UpdateV2Request
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -538,12 +554,12 @@ func (s defaultABitOfEverythingServiceDecorator) Delete_0(ctx *gin.Context) {
 	var req IdMessage
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -560,12 +576,12 @@ func (s defaultABitOfEverythingServiceDecorator) GetQuery_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -582,12 +598,12 @@ func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery_0(ctx *gin.Con
 	var req ABitOfEverythingRepeated
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -604,12 +620,12 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_0(ctx *gin.Context) {
 	var req StringMessage
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -626,7 +642,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 	var req StringMessage
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -643,7 +659,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 	var req StringMessage
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -660,12 +676,12 @@ func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho_0(ctx *gin.Context
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -682,7 +698,7 @@ func (s defaultABitOfEverythingServiceDecorator) Timeout_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -699,7 +715,7 @@ func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails_0(ctx *gin.Con
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -716,12 +732,12 @@ func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody_0(ctx *gin.C
 	var req MessageWithBody
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -738,12 +754,12 @@ func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody_0(ctx *gin.Co
 	var req Body
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -760,12 +776,12 @@ func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams_0(ctx *gin.
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -782,12 +798,12 @@ func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams_0
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -804,12 +820,12 @@ func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams_0(ctx *gin
 	var req ABitOfEverything
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -826,7 +842,7 @@ func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType_0(
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -843,7 +859,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum_0(ctx *gi
 	var req MessageWithPathEnum
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -860,7 +876,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum_0(c
 	var req MessageWithNestedPathEnum
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -877,7 +893,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckStatus_0(ctx *gin.Context)
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -922,6 +938,818 @@ func RegisterABitOfEverythingServiceServer(router gin.IRouter, s ABitOfEverythin
 	router.Handle("GET", "/v1/example/checkStatus", d.CheckStatus_0)
 }
 
+// ABitOfEverythingServiceClient is the client API for for ABitOfEverythingService service.
+type ABitOfEverythingServiceClient interface {
+	// Create a new ABitOfEverything
+	//
+	// This API creates a new ABitOfEverything
+	Create(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	CreateBody(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	// Create a book.
+	CreateBook(context.Context, *CreateBookRequest) (*Book, error)
+	UpdateBook(context.Context, *UpdateBookRequest) (*Book, error)
+	Lookup(context.Context, *IdMessage) (*ABitOfEverything, error)
+	Update(context.Context, *ABitOfEverything) (*emptypb.Empty, error)
+	UpdateV2(context.Context, *UpdateV2Request) (*emptypb.Empty, error)
+	Delete(context.Context, *IdMessage) (*emptypb.Empty, error)
+	GetQuery(context.Context, *ABitOfEverything) (*emptypb.Empty, error)
+	GetRepeatedQuery(context.Context, *ABitOfEverythingRepeated) (*ABitOfEverythingRepeated, error)
+	// Echo allows posting a StringMessage value.
+	//
+	// It also exposes multiple bindings.
+	//
+	// This makes it useful when validating that the OpenAPI v2 API
+	// description exposes documentation correctly on all paths
+	// defined as additional_bindings in the proto.
+	Echo(context.Context, *StringMessage) (*StringMessage, error)
+	DeepPathEcho(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	// rpc NoBindings(google.protobuf.Duration) returns (google.protobuf.Empty) {}
+	Timeout(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	ErrorWithDetails(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	GetMessageWithBody(context.Context, *MessageWithBody) (*emptypb.Empty, error)
+	PostWithEmptyBody(context.Context, *Body) (*emptypb.Empty, error)
+	CheckGetQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	CheckNestedEnumGetQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	CheckPostQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	OverwriteResponseContentType(context.Context, *emptypb.Empty) (*StringValue, error)
+	CheckExternalPathEnum(context.Context, *MessageWithPathEnum) (*emptypb.Empty, error)
+	CheckExternalNestedPathEnum(context.Context, *MessageWithNestedPathEnum) (*emptypb.Empty, error)
+	CheckStatus(context.Context, *emptypb.Empty) (*CheckStatusResponse, error)
+}
+
+type defaultABitOfEverythingServiceClient struct {
+	cc   *http.Client
+	host string
+}
+
+// NewABitOfEverythingServiceClient creates a client API for ABitOfEverythingService service.
+func NewABitOfEverythingServiceClient(host string, cc *http.Client) ABitOfEverythingServiceClient {
+	return &defaultABitOfEverythingServiceClient{cc: cc, host: strings.TrimSuffix(host, "/")}
+}
+
+func (c *defaultABitOfEverythingServiceClient) Create(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/:float_value/:double_value/:int64_value/separator/:uint64_value/:int32_value/:fixed64_value/:fixed32_value/:bool_value/{string_value=strprefix/*}/:uint32_value/:sfixed32_value/:sfixed64_value/:sint32_value/:sint64_value/:nonConventionalNameValue/:enum_value/:path_enum_value/:nested_path_enum_value/:enum_value_annotation")
+	endpoint = strings.ReplaceAll(endpoint, ":bool_value", fmt.Sprint(req.BoolValue))
+	endpoint = strings.ReplaceAll(endpoint, ":double_value", fmt.Sprint(req.DoubleValue))
+	endpoint = strings.ReplaceAll(endpoint, ":enum_value", fmt.Sprint(req.EnumValue))
+	endpoint = strings.ReplaceAll(endpoint, ":enum_value_annotation", fmt.Sprint(req.EnumValueAnnotation))
+	endpoint = strings.ReplaceAll(endpoint, ":fixed32_value", fmt.Sprint(req.Fixed32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":fixed64_value", fmt.Sprint(req.Fixed64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":float_value", fmt.Sprint(req.FloatValue))
+	endpoint = strings.ReplaceAll(endpoint, ":int32_value", fmt.Sprint(req.Int32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":int64_value", fmt.Sprint(req.Int64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":nested_path_enum_value", fmt.Sprint(req.NestedPathEnumValue))
+	endpoint = strings.ReplaceAll(endpoint, ":nonConventionalNameValue", fmt.Sprint(req.NonConventionalNameValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_enum_value", fmt.Sprint(req.PathEnumValue))
+	endpoint = strings.ReplaceAll(endpoint, ":sfixed32_value", fmt.Sprint(req.Sfixed32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":sfixed64_value", fmt.Sprint(req.Sfixed64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":sint32_value", fmt.Sprint(req.Sint32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":sint64_value", fmt.Sprint(req.Sint64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":uint32_value", fmt.Sprint(req.Uint32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":uint64_value", fmt.Sprint(req.Uint64Value))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CreateBody(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything")
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CreateBook(ctx context.Context, req *CreateBookRequest) (*Book, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/{parent=publishers/*}/books")
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp Book
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) UpdateBook(ctx context.Context, req *UpdateBookRequest) (*Book, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/{book.name=publishers/*/books/*}")
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("PATCH", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp Book
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Lookup(ctx context.Context, req *IdMessage) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/:uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":uuid", fmt.Sprint(req.Uuid))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Update(ctx context.Context, req *ABitOfEverything) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/:uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":uuid", fmt.Sprint(req.Uuid))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("PUT", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) UpdateV2(ctx context.Context, req *UpdateV2Request) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/a_bit_of_everything/:abe.uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":abe.uuid", fmt.Sprint(req.Abe.Uuid))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("PUT", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Delete(ctx context.Context, req *IdMessage) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/:uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":uuid", fmt.Sprint(req.Uuid))
+
+	hreq, err := http.NewRequest("DELETE", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) GetQuery(ctx context.Context, req *ABitOfEverything) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/query/:uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":uuid", fmt.Sprint(req.Uuid))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) GetRepeatedQuery(ctx context.Context, req *ABitOfEverythingRepeated) (*ABitOfEverythingRepeated, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything_repeated/:path_repeated_float_value/:path_repeated_double_value/:path_repeated_int64_value/:path_repeated_uint64_value/:path_repeated_int32_value/:path_repeated_fixed64_value/:path_repeated_fixed32_value/:path_repeated_bool_value/:path_repeated_string_value/:path_repeated_bytes_value/:path_repeated_uint32_value/:path_repeated_enum_value/:path_repeated_sfixed32_value/:path_repeated_sfixed64_value/:path_repeated_sint32_value/:path_repeated_sint64_value")
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_bool_value", fmt.Sprint(req.PathRepeatedBoolValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_bytes_value", fmt.Sprint(req.PathRepeatedBytesValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_double_value", fmt.Sprint(req.PathRepeatedDoubleValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_enum_value", fmt.Sprint(req.PathRepeatedEnumValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_fixed32_value", fmt.Sprint(req.PathRepeatedFixed32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_fixed64_value", fmt.Sprint(req.PathRepeatedFixed64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_float_value", fmt.Sprint(req.PathRepeatedFloatValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_int32_value", fmt.Sprint(req.PathRepeatedInt32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_int64_value", fmt.Sprint(req.PathRepeatedInt64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_sfixed32_value", fmt.Sprint(req.PathRepeatedSfixed32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_sfixed64_value", fmt.Sprint(req.PathRepeatedSfixed64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_sint32_value", fmt.Sprint(req.PathRepeatedSint32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_sint64_value", fmt.Sprint(req.PathRepeatedSint64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_string_value", fmt.Sprint(req.PathRepeatedStringValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_uint32_value", fmt.Sprint(req.PathRepeatedUint32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_uint64_value", fmt.Sprint(req.PathRepeatedUint64Value))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverythingRepeated
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Echo(ctx context.Context, req *StringMessage) (*StringMessage, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/echo/:value")
+	endpoint = strings.ReplaceAll(endpoint, ":value", fmt.Sprint(req.Value))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp StringMessage
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) DeepPathEcho(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/deep_path/:single_nested.name")
+	endpoint = strings.ReplaceAll(endpoint, ":single_nested.name", fmt.Sprint(req.SingleNested.Name))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Timeout(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/timeout")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) ErrorWithDetails(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/errorwithdetails")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) GetMessageWithBody(ctx context.Context, req *MessageWithBody) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/withbody/:id")
+	endpoint = strings.ReplaceAll(endpoint, ":id", fmt.Sprint(req.Id))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) PostWithEmptyBody(ctx context.Context, req *Body) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/postwithemptybody/:name")
+	endpoint = strings.ReplaceAll(endpoint, ":name", fmt.Sprint(req.Name))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckGetQueryParams(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/params/get/:single_nested.name")
+	endpoint = strings.ReplaceAll(endpoint, ":single_nested.name", fmt.Sprint(req.SingleNested.Name))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckNestedEnumGetQueryParams(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/params/get/nested_enum/:single_nested.ok")
+	endpoint = strings.ReplaceAll(endpoint, ":single_nested.ok", fmt.Sprint(req.SingleNested.Ok))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckPostQueryParams(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/params/post/:string_value")
+	endpoint = strings.ReplaceAll(endpoint, ":string_value", fmt.Sprint(req.StringValue))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) OverwriteResponseContentType(ctx context.Context, req *emptypb.Empty) (*StringValue, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/overwriteresponsecontenttype")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp StringValue
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckExternalPathEnum(ctx context.Context, req *MessageWithPathEnum) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/{value}:check")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckExternalNestedPathEnum(ctx context.Context, req *MessageWithNestedPathEnum) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v3/{value}:check")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckStatus(ctx context.Context, req *emptypb.Empty) (*CheckStatusResponse, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/checkStatus")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp CheckStatusResponse
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
 // CamelCaseServiceNameServer is the server API for CamelCaseServiceName service.
 type CamelCaseServiceNameServer interface {
 	Empty(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
@@ -931,7 +1759,7 @@ type CamelCaseServiceNameServer interface {
 type UnimplementedCamelCaseServiceNameServer struct{}
 
 func (s *UnimplementedCamelCaseServiceNameServer) Empty(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(status.Unimplemented, "method Empty not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method Empty not implemented")
 }
 
 type defaultCamelCaseServiceNameDecorator struct {
@@ -942,7 +1770,7 @@ func (s defaultCamelCaseServiceNameDecorator) Empty_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(status.InvalidArgument, err.Error()))
+		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
 		return
 	}
 
@@ -959,4 +1787,48 @@ func (s defaultCamelCaseServiceNameDecorator) Empty_0(ctx *gin.Context) {
 func RegisterCamelCaseServiceNameServer(router gin.IRouter, s CamelCaseServiceNameServer) {
 	d := defaultCamelCaseServiceNameDecorator{ss: s}
 	router.Handle("GET", "/v2/example/empty", d.Empty_0)
+}
+
+// CamelCaseServiceNameClient is the client API for for CamelCaseServiceName service.
+type CamelCaseServiceNameClient interface {
+	Empty(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+}
+
+type defaultCamelCaseServiceNameClient struct {
+	cc   *http.Client
+	host string
+}
+
+// NewCamelCaseServiceNameClient creates a client API for CamelCaseServiceName service.
+func NewCamelCaseServiceNameClient(host string, cc *http.Client) CamelCaseServiceNameClient {
+	return &defaultCamelCaseServiceNameClient{cc: cc, host: strings.TrimSuffix(host, "/")}
+}
+
+func (c *defaultCamelCaseServiceNameClient) Empty(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/empty")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := json.Unmarshal(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
 }
