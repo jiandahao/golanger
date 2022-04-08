@@ -192,7 +192,7 @@ func (c *defaultAccountClient) CreateAccount(ctx context.Context, req *AccountRe
 	}
 
 	var resp RegisterStatus
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -228,7 +228,7 @@ func (c *defaultAccountClient) GetProfile(ctx context.Context, req *GetProfileRe
 	}
 
 	var resp Profile
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 

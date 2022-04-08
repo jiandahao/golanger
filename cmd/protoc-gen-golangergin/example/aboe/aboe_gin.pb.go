@@ -1032,7 +1032,7 @@ func (c *defaultABitOfEverythingServiceClient) Create(ctx context.Context, req *
 	}
 
 	var resp ABitOfEverything
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1066,7 +1066,7 @@ func (c *defaultABitOfEverythingServiceClient) CreateBody(ctx context.Context, r
 	}
 
 	var resp ABitOfEverything
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1100,7 +1100,7 @@ func (c *defaultABitOfEverythingServiceClient) CreateBook(ctx context.Context, r
 	}
 
 	var resp Book
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1134,7 +1134,7 @@ func (c *defaultABitOfEverythingServiceClient) UpdateBook(ctx context.Context, r
 	}
 
 	var resp Book
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1164,7 +1164,7 @@ func (c *defaultABitOfEverythingServiceClient) Lookup(ctx context.Context, req *
 	}
 
 	var resp ABitOfEverything
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1199,7 +1199,7 @@ func (c *defaultABitOfEverythingServiceClient) Update(ctx context.Context, req *
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1234,7 +1234,7 @@ func (c *defaultABitOfEverythingServiceClient) UpdateV2(ctx context.Context, req
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1264,7 +1264,7 @@ func (c *defaultABitOfEverythingServiceClient) Delete(ctx context.Context, req *
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1294,7 +1294,7 @@ func (c *defaultABitOfEverythingServiceClient) GetQuery(ctx context.Context, req
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1339,7 +1339,7 @@ func (c *defaultABitOfEverythingServiceClient) GetRepeatedQuery(ctx context.Cont
 	}
 
 	var resp ABitOfEverythingRepeated
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1369,7 +1369,7 @@ func (c *defaultABitOfEverythingServiceClient) Echo(ctx context.Context, req *St
 	}
 
 	var resp StringMessage
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1404,7 +1404,7 @@ func (c *defaultABitOfEverythingServiceClient) DeepPathEcho(ctx context.Context,
 	}
 
 	var resp ABitOfEverything
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1433,7 +1433,7 @@ func (c *defaultABitOfEverythingServiceClient) Timeout(ctx context.Context, req 
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1462,7 +1462,7 @@ func (c *defaultABitOfEverythingServiceClient) ErrorWithDetails(ctx context.Cont
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1497,7 +1497,7 @@ func (c *defaultABitOfEverythingServiceClient) GetMessageWithBody(ctx context.Co
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1532,7 +1532,7 @@ func (c *defaultABitOfEverythingServiceClient) PostWithEmptyBody(ctx context.Con
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1562,7 +1562,7 @@ func (c *defaultABitOfEverythingServiceClient) CheckGetQueryParams(ctx context.C
 	}
 
 	var resp ABitOfEverything
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1592,7 +1592,7 @@ func (c *defaultABitOfEverythingServiceClient) CheckNestedEnumGetQueryParams(ctx
 	}
 
 	var resp ABitOfEverything
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1627,7 +1627,7 @@ func (c *defaultABitOfEverythingServiceClient) CheckPostQueryParams(ctx context.
 	}
 
 	var resp ABitOfEverything
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1656,7 +1656,7 @@ func (c *defaultABitOfEverythingServiceClient) OverwriteResponseContentType(ctx 
 	}
 
 	var resp StringValue
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1685,7 +1685,7 @@ func (c *defaultABitOfEverythingServiceClient) CheckExternalPathEnum(ctx context
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1714,7 +1714,7 @@ func (c *defaultABitOfEverythingServiceClient) CheckExternalNestedPathEnum(ctx c
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1743,7 +1743,7 @@ func (c *defaultABitOfEverythingServiceClient) CheckStatus(ctx context.Context, 
 	}
 
 	var resp CheckStatusResponse
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 
@@ -1826,7 +1826,7 @@ func (c *defaultCamelCaseServiceNameClient) Empty(ctx context.Context, req *empt
 	}
 
 	var resp emptypb.Empty
-	if err := json.Unmarshal(respBody, &resp); err != nil {
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 		return nil, err
 	}
 

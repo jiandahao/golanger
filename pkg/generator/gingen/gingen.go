@@ -343,7 +343,7 @@ var defaultClientTempl = `
 			}
 
 			var resp {{.Response.GoName}}
-			if err := json.Unmarshal(respBody, &resp); err != nil {
+			if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
 				return nil, err
 			}
 
