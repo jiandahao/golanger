@@ -47,6 +47,7 @@ func (p *ProtocPlugin) GenerateFile(file *FileInfo) {
 
 	// Using QualifiedGoIdent to make referenced Packages to be automatically imported.
 	importedPath := []string{
+		"io",
 		"fmt",
 		"encoding/json",
 		"strings",
@@ -55,6 +56,7 @@ func (p *ProtocPlugin) GenerateFile(file *FileInfo) {
 		"bytes",
 		"net/url",
 		"context",
+		"mime/multipart",
 		"github.com/gin-gonic/gin",
 		"google.golang.org/grpc/codes",
 		"google.golang.org/grpc/status",
@@ -73,6 +75,8 @@ func (p *ProtocPlugin) GenerateFile(file *FileInfo) {
 		var _ http.RoundTripper
 		var _ bytes.Buffer
 		var _ url.Values
+		var _ multipart.File
+		var _ io.Reader
 	`)
 
 	for _, item := range file.AllMessages {
@@ -197,39 +201,47 @@ var serviceDecoratorTempl = `
 		{{$methodName := .Name}}
 		{{$requestParamType := .Request.GoName}}
 		{{$hasHeaderParam := .Request.HasHeaderParam}}
+		{{$hasQueryParam := .Request.HasQueryParam}}
+		{{$hasFile := .Request.HasFile}}
 		{{range $index, $rule := .HTTPRules}}
 			func (s default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
 				var req {{$requestParamType}}
-				{{ if $rule.HasPathParam }}
-				if err := ctx.ShouldBindUri(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
-					return
+				
+				{{- if eq $rule.Method "GET" "DELETE" }}
+				{{- else}}
+				shouldBindPayload := func(obj interface{}) error {
+					switch ctx.ContentType() {
+					case "":
+						return ctx.ShouldBindJSON(obj)
+					default:
+						return ctx.ShouldBind(obj)
+					}
 				}
-				{{ end }}
+				{{- end }}
 
-				{{ if $hasHeaderParam }}
-				if err := ctx.ShouldBindHeader(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
-					return
+				bindingHandlers := []func(obj interface{}) error {
+					{{- if eq $rule.Method "GET" "DELETE" }}
+					{{- else }}
+					shouldBindPayload,
+					{{- end -}}
+				
+					{{- if $rule.HasPathParam }}
+					ctx.ShouldBindUri,
+					{{- end -}}
+					{{ if $hasHeaderParam }}
+					ctx.ShouldBindHeader,
+					{{- end -}}
+					{{ if $hasQueryParam }}
+					ctx.ShouldBindQuery,
+					{{- end }}
 				}
-				{{end}}
 
-				{{ if eq $rule.Method "GET" "DELETE" }}
-				if err := ctx.ShouldBindQuery(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
-					return
+				for _, doBinding := range bindingHandlers {
+					if err := doBinding(&req); err != nil {
+						runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
+						return
+					}
 				}
-				{{else if eq $rule.Method "POST" "PUT" }}
-				if err := ctx.ShouldBindJSON(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
-					return
-				}
-				{{else}}
-				if err := ctx.ShouldBind(&req); err != nil {
-					runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error())) 
-					return
-				}
-				{{end}}
 
 				resp, err := s.ss.{{$methodName}}(ctx, &req)
 				if err != nil {
@@ -296,7 +308,10 @@ var defaultClientTempl = `
 		{{$rule := index .HTTPRules 0}}
 		{{$header := .Request.FieldWithTag "header"}}
 		{{$body := .Request.FieldWithTag "json"}}
-		{{$query := .Request.FieldWithTag "form"}}
+		{{$query := .Request.FieldWithTag "query"}}
+		{{$hasFiles := .Request.HasFile}}
+		{{$hasForm := .Request.HasFormParam}}
+		{{$formField := .Request.FieldWithTag "form"}}
 		{{$request := .Request}}
 		func (c *default{{$serviceName}}Client) {{$methodName}} (ctx context.Context, req *{{.Request.GoName}}) (*{{.Response.GoName}}, error) {
 			endpoint := fmt.Sprintf("%s%s", c.host, "{{$rule.Path}}")
@@ -304,21 +319,64 @@ var defaultClientTempl = `
 				endpoint = strings.ReplaceAll(endpoint, ":{{$key}}", fmt.Sprint(req.{{$value}}))
 			{{- end}}
 
-			{{if eq $rule.Method "POST" "PUT" "PATCH"}}
-				data, err := json.Marshal(req)
-				if err != nil {
-					return nil, fmt.Errorf("failed to marshal request with error: %s", err)
-				}
-
-				hreq, err := http.NewRequest("{{$rule.Method}}", endpoint, bytes.NewBuffer(data))
-			{{- else}}
+			{{if eq $rule.Method "GET" "DELETE" }}
 				hreq , err := http.NewRequest("{{$rule.Method}}", endpoint, nil)
-			{{- end}}
-			if err != nil {
-				return nil, fmt.Errorf("failed to create request with error: %s", err)
-			}
+				if err != nil {
+					return nil, fmt.Errorf("failed to create request with error: %s", err)
+				}
+			{{- else}}
+				{{ if or $hasFiles $hasForm }}
+					body := &bytes.Buffer{}
+					writer := multipart.NewWriter(body)
+					{{if $hasForm }}
+						{{range $formField }}
+						{{$tag := .TagByName "form"}} writer.WriteField("{{$tag.Value}}", req.{{.GoName}})
+						{{- end -}}
+					{{end}}
 
+					{{if $hasFiles}}
+					for filedName, files := range req.MultipartFiles {
+						for filename, reader := range files {
+							fw, err := writer.CreateFormFile(filedName, filename)
+							if err != nil {
+								return nil, err
+							}
+
+							_, err = io.Copy(fw, reader)
+							if err != nil {
+								return nil, err
+							}
+						}
+					}
+					{{end}}
+					if err := writer.Close(); err != nil {
+						return nil, err
+					}
+
+					hreq, err := http.NewRequest("{{$rule.Method}}", endpoint, body)	
+					if err != nil {
+						return nil, fmt.Errorf("failed to create request with error: %s", err)
+					}
+				{{else}}
+					data, err := json.Marshal(req)
+					if err != nil {
+						return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+					}
+					
+					hreq, err := http.NewRequest("{{$rule.Method}}", endpoint, bytes.NewBuffer(data))	
+					if err != nil {
+						return nil, fmt.Errorf("failed to create request with error: %s", err)
+					}	
+				{{end}}		
+
+			{{- end}}
+
+			{{if or $hasFiles $hasForm }}
+			hreq.Header.Set("Content-Type", writer.FormDataContentType())
+			{{else}}
 			hreq.Header.Set("Content-Type", "application/json")
+			{{end}}
+
 			{{- range $header}}
 				{{$tag := .TagByName "header"}} hreq.Header.Add("{{$tag.Value}}", req.{{.GoName}})
 			{{- end}}
@@ -326,7 +384,7 @@ var defaultClientTempl = `
 			{{if $query -}}
 				var queries = url.Values{}
 				{{- range $query }}
-					{{$tag := .TagByName "form"}} queries.Add("{{$tag.Value}}", req.{{.GoName}})
+					{{$tag := .TagByName "query"}} queries.Add("{{$tag.Value}}", req.{{.GoName}})
 				{{- end}}
 				hreq.URL.RawQuery = queries.Encode()
 			{{end}}
@@ -536,6 +594,7 @@ func NewMessage(f *protogen.GeneratedFile, m *protogen.Message) *Message {
 		f:               f,
 	}
 
+	var multipartFilesFieldAdded bool
 	for _, field := range m.Fields {
 		fieldType, isPointer := fieldGoType(f, field)
 		if isPointer {
@@ -568,6 +627,40 @@ func NewMessage(f *protogen.GeneratedFile, m *protogen.Message) *Message {
 						Key:   res[0],
 						Value: strings.Trim(res[1], `"`),
 					})
+
+					if res[0] == "file" {
+						if fieldInfo.GoType != "[]byte" {
+							panic(fmt.Errorf("field %s.%s should be with type `bytes` if it represents a file", msgInfo.GoName, fieldInfo.GoName))
+						}
+						fieldInfo.GoType = "*multipart.FileHeader"
+						if fieldInfo.LeadingComments != "" {
+							fieldInfo.LeadingComments = fieldInfo.LeadingComments + "Note: Just for Server use only"
+						} else {
+							fieldInfo.LeadingComments = "// Note: Just for Server use only"
+						}
+
+						if !multipartFilesFieldAdded {
+							msgInfo.Fields = append(msgInfo.Fields, Field{
+								GoName: "MultipartFiles",
+								GoType: "map[string]map[string]io.Reader",
+								Tags: []*Tag{
+									{
+										Key:   "json",
+										Value: "multipart_files",
+									},
+									{
+										Key:   "file",
+										Value: "multipart_files",
+									},
+								},
+								LeadingComments: `// Nested Map for all multipart files. 
+							// Keys of the outer map and inner map represent form-data keys and filename, respectively.
+							// Note: Just for Client use only`,
+							})
+							multipartFilesFieldAdded = true
+						}
+
+					}
 				}
 			}
 		}
@@ -604,6 +697,21 @@ func (mi Message) P() {
 // HasHeaderParam returns true if there is at least one header param.
 func (mi Message) HasHeaderParam() bool {
 	return len(mi.FieldWithHeaderTag()) > 0
+}
+
+// HasQueryParam returns true if there is at least one query param.
+func (mi Message) HasQueryParam() bool {
+	return len(mi.FieldWithQueryTag()) > 0
+}
+
+// HasFormParam returns true if there is at least one form param.
+func (mi Message) HasFormParam() bool {
+	return len(mi.FieldWithFormTag()) > 0
+}
+
+// HasFile returns true if there is field represents a file.
+func (mi Message) HasFile() bool {
+	return len(mi.FieldWithFileTag()) > 0
 }
 
 // FieldWithTag returns all fileds that has specified tag.
@@ -649,6 +757,11 @@ func (mi Message) FieldWithPathTag() []Field {
 // FieldWithFormTag returns all fields that have tag `form`.
 func (mi Message) FieldWithFormTag() []Field {
 	return mi.FieldWithTag("form")
+}
+
+// FieldWithFileTag returns all fields that have tag `file`.
+func (mi Message) FieldWithFileTag() []Field {
+	return mi.FieldWithTag("file")
 }
 
 // QueryFieldByTagKeyAndValue returns field that has tag which key_name=`key` and value = `value`
@@ -717,7 +830,10 @@ func (fi Field) TagStr() string {
 //
 // e.g: Name string `json:"name"`
 func (fi Field) String() string {
-	return fmt.Sprintf("%s %s %s", fi.GoName, fi.GoType, fi.TagStr())
+	if fi.LeadingComments == "" {
+		return fmt.Sprintf("%s %s %s", fi.GoName, fi.GoType, fi.TagStr())
+	}
+	return fmt.Sprintf("%s\n%s %s %s", fi.LeadingComments, fi.GoName, fi.GoType, fi.TagStr())
 }
 
 // Tag describes tag info for structure filed.
@@ -730,5 +846,10 @@ type Tag struct {
 
 // String returns tag info as string.
 func (ti Tag) String() string {
-	return fmt.Sprintf(`%s:"%s"`, ti.Key, ti.Value)
+	key := ti.Key
+	switch key {
+	case "query", "file":
+		key = "form" // gin binds query,file payload using form tag
+	}
+	return fmt.Sprintf(`%s:"%s"`, key, ti.Value)
 }

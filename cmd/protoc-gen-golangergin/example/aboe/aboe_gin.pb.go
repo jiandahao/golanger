@@ -15,7 +15,9 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	io "io"
 	ioutil "io/ioutil"
+	multipart "mime/multipart"
 	http "net/http"
 	url "net/url"
 	strings "strings"
@@ -28,6 +30,8 @@ var _ = ioutil.Discard
 var _ http.RoundTripper
 var _ bytes.Buffer
 var _ url.Values
+var _ multipart.File
+var _ io.Reader
 
 type ErrorResponse struct {
 	CorrelationId string       `json:"correlationId,omitempty"`
@@ -41,48 +45,66 @@ type ErrorObject struct {
 
 // Intentionally complicated message type to cover many features of Protobuf.
 type ABitOfEverything struct {
-	SingleNested                               *ABitOfEverything_Nested            `json:"single_nested,omitempty"`
-	Uuid                                       string                              `json:"uuid,omitempty"`
-	Nested                                     []*ABitOfEverything_Nested          `json:"nested,omitempty"`
-	FloatValue                                 float32                             `json:"float_value,omitempty"`
-	DoubleValue                                float64                             `json:"double_value,omitempty"`
-	Int64Value                                 int64                               `json:"int64_value,omitempty"`
-	Uint64Value                                uint64                              `json:"uint64_value,omitempty"`
-	Int32Value                                 int32                               `json:"int32_value,omitempty"`
-	Fixed64Value                               uint64                              `json:"fixed64_value,omitempty"`
-	Fixed32Value                               uint32                              `json:"fixed32_value,omitempty"`
-	BoolValue                                  bool                                `json:"bool_value,omitempty"`
-	StringValue                                string                              `json:"string_value,omitempty"`
-	BytesValue                                 []byte                              `json:"bytes_value,omitempty"`
-	Uint32Value                                uint32                              `json:"uint32_value,omitempty"`
-	EnumValue                                  NumericEnum                         `json:"enum_value,omitempty"`
-	PathEnumValue                              PathEnum                            `json:"path_enum_value,omitempty"`
-	NestedPathEnumValue                        MessagePathEnum_NestedPathEnum      `json:"nested_path_enum_value,omitempty"`
-	Sfixed32Value                              int32                               `json:"sfixed32_value,omitempty"`
-	Sfixed64Value                              int64                               `json:"sfixed64_value,omitempty"`
-	Sint32Value                                int32                               `json:"sint32_value,omitempty"`
-	Sint64Value                                int64                               `json:"sint64_value,omitempty"`
-	RepeatedStringValue                        []string                            `json:"repeated_string_value,omitempty"`
-	OneofEmpty                                 *emptypb.Empty                      `json:"oneof_empty,omitempty"`
-	OneofString                                *string                             `json:"oneof_string,omitempty"`
-	MapValue                                   map[string]NumericEnum              `json:"map_value,omitempty"`
-	MappedStringValue                          map[string]string                   `json:"mapped_string_value,omitempty"`
-	MappedNestedValue                          map[string]*ABitOfEverything_Nested `json:"mapped_nested_value,omitempty"`
-	NonConventionalNameValue                   string                              `json:"nonConventionalNameValue,omitempty"`
-	TimestampValue                             *timestamppb.Timestamp              `json:"timestamp_value,omitempty"`
-	RepeatedEnumValue                          []NumericEnum                       `json:"repeated_enum_value,omitempty"`
-	RepeatedEnumAnnotation                     []NumericEnum                       `json:"repeated_enum_annotation,omitempty"`
-	EnumValueAnnotation                        NumericEnum                         `json:"enum_value_annotation,omitempty"`
-	RepeatedStringAnnotation                   []string                            `json:"repeated_string_annotation,omitempty"`
-	RepeatedNestedAnnotation                   []*ABitOfEverything_Nested          `json:"repeated_nested_annotation,omitempty"`
-	NestedAnnotation                           *ABitOfEverything_Nested            `json:"nested_annotation,omitempty"`
-	Int64OverrideType                          int64                               `json:"int64_override_type,omitempty"`
-	RequiredStringViaFieldBehaviorAnnotation   string                              `json:"required_string_via_field_behavior_annotation,omitempty"`
-	OutputOnlyStringViaFieldBehaviorAnnotation string                              `json:"output_only_string_via_field_behavior_annotation,omitempty"`
+	SingleNested             *ABitOfEverything_Nested            `json:"single_nested,omitempty"`
+	Uuid                     string                              `json:"uuid,omitempty"`
+	Nested                   []*ABitOfEverything_Nested          `json:"nested,omitempty"`
+	FloatValue               float32                             `json:"float_value,omitempty"`
+	DoubleValue              float64                             `json:"double_value,omitempty"`
+	Int64Value               int64                               `json:"int64_value,omitempty"`
+	Uint64Value              uint64                              `json:"uint64_value,omitempty"`
+	Int32Value               int32                               `json:"int32_value,omitempty"`
+	Fixed64Value             uint64                              `json:"fixed64_value,omitempty"`
+	Fixed32Value             uint32                              `json:"fixed32_value,omitempty"`
+	BoolValue                bool                                `json:"bool_value,omitempty"`
+	StringValue              string                              `json:"string_value,omitempty"`
+	BytesValue               []byte                              `json:"bytes_value,omitempty"`
+	Uint32Value              uint32                              `json:"uint32_value,omitempty"`
+	EnumValue                NumericEnum                         `json:"enum_value,omitempty"`
+	PathEnumValue            PathEnum                            `json:"path_enum_value,omitempty"`
+	NestedPathEnumValue      MessagePathEnum_NestedPathEnum      `json:"nested_path_enum_value,omitempty"`
+	Sfixed32Value            int32                               `json:"sfixed32_value,omitempty"`
+	Sfixed64Value            int64                               `json:"sfixed64_value,omitempty"`
+	Sint32Value              int32                               `json:"sint32_value,omitempty"`
+	Sint64Value              int64                               `json:"sint64_value,omitempty"`
+	RepeatedStringValue      []string                            `json:"repeated_string_value,omitempty"`
+	OneofEmpty               *emptypb.Empty                      `json:"oneof_empty,omitempty"`
+	OneofString              *string                             `json:"oneof_string,omitempty"`
+	MapValue                 map[string]NumericEnum              `json:"map_value,omitempty"`
+	MappedStringValue        map[string]string                   `json:"mapped_string_value,omitempty"`
+	MappedNestedValue        map[string]*ABitOfEverything_Nested `json:"mapped_nested_value,omitempty"`
+	NonConventionalNameValue string                              `json:"nonConventionalNameValue,omitempty"`
+	TimestampValue           *timestamppb.Timestamp              `json:"timestamp_value,omitempty"`
+	// repeated enum value. it is comma-separated in query
+
+	RepeatedEnumValue []NumericEnum `json:"repeated_enum_value,omitempty"`
+	// repeated numeric enum comment (This comment is overridden by the field annotation)
+
+	RepeatedEnumAnnotation []NumericEnum `json:"repeated_enum_annotation,omitempty"`
+	// numeric enum comment (This comment is overridden by the field annotation)
+
+	EnumValueAnnotation NumericEnum `json:"enum_value_annotation,omitempty"`
+	// repeated string comment (This comment is overridden by the field annotation)
+
+	RepeatedStringAnnotation []string `json:"repeated_string_annotation,omitempty"`
+	// repeated nested object comment (This comment is overridden by the field annotation)
+
+	RepeatedNestedAnnotation []*ABitOfEverything_Nested `json:"repeated_nested_annotation,omitempty"`
+	// nested object comments (This comment is overridden by the field annotation)
+
+	NestedAnnotation  *ABitOfEverything_Nested `json:"nested_annotation,omitempty"`
+	Int64OverrideType int64                    `json:"int64_override_type,omitempty"`
+	// mark a field as required in Open API definition
+
+	RequiredStringViaFieldBehaviorAnnotation string `json:"required_string_via_field_behavior_annotation,omitempty"`
+	// mark a field as readonly in Open API definition
+
+	OutputOnlyStringViaFieldBehaviorAnnotation string `json:"output_only_string_via_field_behavior_annotation,omitempty"`
 }
 
 // ABitOfEverythingRepeated is used to validate repeated path parameter functionality
 type ABitOfEverythingRepeated struct {
+	// repeated values. they are comma-separated in path
+
 	PathRepeatedFloatValue    []float32     `json:"path_repeated_float_value,omitempty"`
 	PathRepeatedDoubleValue   []float64     `json:"path_repeated_double_value,omitempty"`
 	PathRepeatedInt64Value    []int64       `json:"path_repeated_int64_value,omitempty"`
@@ -116,7 +138,9 @@ type MessageWithBody struct {
 
 // UpdateV2Request request for update includes the message and the update mask
 type UpdateV2Request struct {
-	Abe        *ABitOfEverything      `json:"abe,omitempty"`
+	Abe *ABitOfEverything `json:"abe,omitempty"`
+	// The paths to update.
+
 	UpdateMask *fieldmaskpb.FieldMask `json:"update_mask,omitempty"`
 }
 
@@ -125,8 +149,18 @@ type UpdateV2Request struct {
 //
 // See: https://google.aip.dev/123
 type Book struct {
-	Name       string                 `json:"name,omitempty"`
-	Id         string                 `json:"id,omitempty"`
+	// The resource name of the book.
+	//
+	// Format: `publishers/{publisher}/books/{book}`
+	//
+	// Example: `publishers/1257894000000000000/books/my-book`
+
+	Name string `json:"name,omitempty"`
+	// Output only. The book's ID.
+
+	Id string `json:"id,omitempty"`
+	// Output only. Creation time of the book.
+
 	CreateTime *timestamppb.Timestamp `json:"create_time,omitempty"`
 }
 
@@ -136,8 +170,20 @@ type Book struct {
 //
 // See: https://google.aip.dev/133#user-specified-ids
 type CreateBookRequest struct {
+	// The publisher in which to create the book.
+	//
+	// Format: `publishers/{publisher}`
+	//
+	// Example: `publishers/1257894000000000000`
+
 	Parent string `json:"parent,omitempty"`
-	Book   *Book  `json:"book,omitempty"`
+	// The book to create.
+
+	Book *Book `json:"book,omitempty"`
+	// The ID to use for the book.
+	//
+	// This must start with an alphanumeric character.
+
 	BookId string `json:"book_id,omitempty"`
 }
 
@@ -145,9 +191,19 @@ type CreateBookRequest struct {
 //
 // See: https://google.aip.dev/134#request-message
 type UpdateBookRequest struct {
-	Book         *Book                  `json:"book,omitempty"`
-	UpdateMask   *fieldmaskpb.FieldMask `json:"update_mask,omitempty"`
-	AllowMissing bool                   `json:"allow_missing,omitempty"`
+	// The book to update.
+	//
+	// The book's `name` field is used to identify the book to be updated.
+	// Format: publishers/{publisher}/books/{book}
+
+	Book *Book `json:"book,omitempty"`
+	// The list of fields to be updated.
+
+	UpdateMask *fieldmaskpb.FieldMask `json:"update_mask,omitempty"`
+	// If set to true, and the book is not found, a new book will be created.
+	// In this situation, `update_mask` is ignored.
+
+	AllowMissing bool `json:"allow_missing,omitempty"`
 }
 
 type IdMessage struct {
@@ -175,9 +231,13 @@ type MessageWithNestedPathEnum struct {
 
 // Nested is nested type.
 type ABitOfEverything_Nested struct {
-	Name   string                           `json:"name,omitempty"`
-	Amount uint32                           `json:"amount,omitempty"`
-	Ok     ABitOfEverything_Nested_DeepEnum `json:"ok,omitempty"`
+	// name is nested field.
+
+	Name   string `json:"name,omitempty"`
+	Amount uint32 `json:"amount,omitempty"`
+	// DeepEnum comment.
+
+	Ok ABitOfEverything_Nested_DeepEnum `json:"ok,omitempty"`
 }
 
 type ABitOfEverything_MapValueEntry struct {
@@ -369,15 +429,25 @@ type defaultABitOfEverythingServiceDecorator struct {
 
 func (s defaultABitOfEverythingServiceDecorator) Create_0(ctx *gin.Context) {
 	var req ABitOfEverything
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Create(ctx, &req)
@@ -391,10 +461,24 @@ func (s defaultABitOfEverythingServiceDecorator) Create_0(ctx *gin.Context) {
 
 func (s defaultABitOfEverythingServiceDecorator) CreateBody_0(ctx *gin.Context) {
 	var req ABitOfEverything
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
+	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.CreateBody(ctx, &req)
@@ -408,10 +492,24 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBody_0(ctx *gin.Context) 
 
 func (s defaultABitOfEverythingServiceDecorator) CreateBook_0(ctx *gin.Context) {
 	var req CreateBookRequest
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
+	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.CreateBook(ctx, &req)
@@ -425,10 +523,24 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBook_0(ctx *gin.Context) 
 
 func (s defaultABitOfEverythingServiceDecorator) UpdateBook_0(ctx *gin.Context) {
 	var req UpdateBookRequest
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
+	}
 
-	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.UpdateBook(ctx, &req)
@@ -443,14 +555,15 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateBook_0(ctx *gin.Context) 
 func (s defaultABitOfEverythingServiceDecorator) Lookup_0(ctx *gin.Context) {
 	var req IdMessage
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		ctx.ShouldBindUri,
 	}
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Lookup(ctx, &req)
@@ -464,15 +577,25 @@ func (s defaultABitOfEverythingServiceDecorator) Lookup_0(ctx *gin.Context) {
 
 func (s defaultABitOfEverythingServiceDecorator) Update_0(ctx *gin.Context) {
 	var req ABitOfEverything
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Update(ctx, &req)
@@ -486,15 +609,25 @@ func (s defaultABitOfEverythingServiceDecorator) Update_0(ctx *gin.Context) {
 
 func (s defaultABitOfEverythingServiceDecorator) UpdateV2_0(ctx *gin.Context) {
 	var req UpdateV2Request
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.UpdateV2(ctx, &req)
@@ -508,15 +641,25 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_0(ctx *gin.Context) {
 
 func (s defaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 	var req UpdateV2Request
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.UpdateV2(ctx, &req)
@@ -530,15 +673,25 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 
 func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 	var req UpdateV2Request
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBind(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.UpdateV2(ctx, &req)
@@ -553,14 +706,15 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 func (s defaultABitOfEverythingServiceDecorator) Delete_0(ctx *gin.Context) {
 	var req IdMessage
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		ctx.ShouldBindUri,
 	}
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Delete(ctx, &req)
@@ -575,14 +729,15 @@ func (s defaultABitOfEverythingServiceDecorator) Delete_0(ctx *gin.Context) {
 func (s defaultABitOfEverythingServiceDecorator) GetQuery_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		ctx.ShouldBindUri,
 	}
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.GetQuery(ctx, &req)
@@ -597,14 +752,15 @@ func (s defaultABitOfEverythingServiceDecorator) GetQuery_0(ctx *gin.Context) {
 func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery_0(ctx *gin.Context) {
 	var req ABitOfEverythingRepeated
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		ctx.ShouldBindUri,
 	}
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.GetRepeatedQuery(ctx, &req)
@@ -619,14 +775,15 @@ func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery_0(ctx *gin.Con
 func (s defaultABitOfEverythingServiceDecorator) Echo_0(ctx *gin.Context) {
 	var req StringMessage
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		ctx.ShouldBindUri,
 	}
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Echo(ctx, &req)
@@ -640,10 +797,24 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_0(ctx *gin.Context) {
 
 func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 	var req StringMessage
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
+	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Echo(ctx, &req)
@@ -658,9 +829,13 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 	var req StringMessage
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Echo(ctx, &req)
@@ -674,15 +849,25 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 
 func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho_0(ctx *gin.Context) {
 	var req ABitOfEverything
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.DeepPathEcho(ctx, &req)
@@ -697,9 +882,13 @@ func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho_0(ctx *gin.Context
 func (s defaultABitOfEverythingServiceDecorator) Timeout_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Timeout(ctx, &req)
@@ -714,9 +903,13 @@ func (s defaultABitOfEverythingServiceDecorator) Timeout_0(ctx *gin.Context) {
 func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.ErrorWithDetails(ctx, &req)
@@ -730,15 +923,25 @@ func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails_0(ctx *gin.Con
 
 func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody_0(ctx *gin.Context) {
 	var req MessageWithBody
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.GetMessageWithBody(ctx, &req)
@@ -752,15 +955,25 @@ func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody_0(ctx *gin.C
 
 func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody_0(ctx *gin.Context) {
 	var req Body
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.PostWithEmptyBody(ctx, &req)
@@ -775,14 +988,15 @@ func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody_0(ctx *gin.Co
 func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		ctx.ShouldBindUri,
 	}
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.CheckGetQueryParams(ctx, &req)
@@ -797,14 +1011,15 @@ func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams_0(ctx *gin.
 func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams_0(ctx *gin.Context) {
 	var req ABitOfEverything
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		ctx.ShouldBindUri,
 	}
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.CheckNestedEnumGetQueryParams(ctx, &req)
@@ -818,15 +1033,25 @@ func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams_0
 
 func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams_0(ctx *gin.Context) {
 	var req ABitOfEverything
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
 	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.CheckPostQueryParams(ctx, &req)
@@ -841,9 +1066,13 @@ func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams_0(ctx *gin
 func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.OverwriteResponseContentType(ctx, &req)
@@ -858,9 +1087,13 @@ func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType_0(
 func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum_0(ctx *gin.Context) {
 	var req MessageWithPathEnum
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.CheckExternalPathEnum(ctx, &req)
@@ -875,9 +1108,13 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum_0(ctx *gi
 func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum_0(ctx *gin.Context) {
 	var req MessageWithNestedPathEnum
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.CheckExternalNestedPathEnum(ctx, &req)
@@ -892,9 +1129,13 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum_0(c
 func (s defaultABitOfEverythingServiceDecorator) CheckStatus_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.CheckStatus(ctx, &req)
@@ -1769,9 +2010,13 @@ type defaultCamelCaseServiceNameDecorator struct {
 func (s defaultCamelCaseServiceNameDecorator) Empty_0(ctx *gin.Context) {
 	var req emptypb.Empty
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-		return
+	bindingHandlers := []func(obj interface{}) error{}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
 	}
 
 	resp, err := s.ss.Empty(ctx, &req)
