@@ -29,7 +29,13 @@ func NewProtocPlugin() func(gen *protogen.Plugin) error {
 }
 
 // Execute starts to generate file.
-func (p *ProtocPlugin) Execute() error {
+func (p *ProtocPlugin) Execute() (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("%v", r)
+		}
+	}()
+
 	for _, file := range p.gen.Files {
 		p.GenerateFile(NewFileInfo(file))
 	}
@@ -629,10 +635,15 @@ func NewMessage(f *protogen.GeneratedFile, m *protogen.Message) *Message {
 					})
 
 					if res[0] == "file" {
-						if fieldInfo.GoType != "[]byte" {
+						switch fieldInfo.GoType {
+						case "[]byte":
+							fieldInfo.GoType = "*multipart.FileHeader"
+						case "[][]byte":
+							fieldInfo.GoType = "[]*multipart.FileHeader"
+						default:
 							panic(fmt.Errorf("field %s.%s should be with type `bytes` if it represents a file", msgInfo.GoName, fieldInfo.GoName))
 						}
-						fieldInfo.GoType = "*multipart.FileHeader"
+
 						if fieldInfo.LeadingComments != "" {
 							fieldInfo.LeadingComments = fieldInfo.LeadingComments + "Note: Just for Server use only"
 						} else {

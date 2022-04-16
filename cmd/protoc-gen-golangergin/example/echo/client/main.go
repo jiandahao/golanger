@@ -45,8 +45,9 @@ func main() {
 			ParamInFormA: "1111",
 			ParamInFormB: "2222",
 			MultipartFiles: map[string]map[string]io.Reader{
-				"file_a": {
+				"files_a": {
 					"filename1": bytes.NewBufferString("file bbbb"),
+					"filename2": bytes.NewBufferString("file cccc"),
 				},
 				"file_b": {
 					"filename2": bytes.NewBufferString("file bbbb"),

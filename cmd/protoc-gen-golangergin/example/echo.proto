@@ -58,7 +58,7 @@ message PostEchoResp {
 message PostFormEchoReq {
     string param_in_form_a = 1; // form:"param_in_form_a"
     string param_in_form_b = 2; // form:"param_in_form_b"
-    bytes file_a = 3; // file:"file_a"
+    repeated bytes files_a = 3; // file:"files_a"
     bytes file_b = 4; // file:"file_b"
 }
 

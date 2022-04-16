@@ -59,7 +59,7 @@ type PostFormEchoReq struct {
 	// Note: Just for Client use only
 	MultipartFiles map[string]map[string]io.Reader `json:"multipart_files" form:"multipart_files"`
 	// Note: Just for Server use only
-	FileA *multipart.FileHeader `json:"file_a,omitempty" form:"file_a"`
+	FilesA []*multipart.FileHeader `json:"files_a,omitempty" form:"files_a"`
 	// Note: Just for Server use only
 	FileB *multipart.FileHeader `json:"file_b,omitempty" form:"file_b"`
 }

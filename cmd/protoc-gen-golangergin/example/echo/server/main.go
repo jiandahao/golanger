@@ -27,8 +27,8 @@ func (s *echoServer) PostEcho(ctx context.Context, in *echo.PostEchoReq) (*echo.
 
 func (s *echoServer) PostFormEcho(ctx context.Context, in *echo.PostFormEchoReq) (*echo.PostFormEchoResp, error) {
 	var filenameA, filenameB string
-	if in.FileA != nil {
-		filenameA = in.FileA.Filename
+	for _, f := range in.FilesA {
+		filenameA += f.Filename + ","
 	}
 
 	if in.FileB != nil {
