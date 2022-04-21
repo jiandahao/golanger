@@ -427,7 +427,7 @@ type defaultABitOfEverythingServiceDecorator struct {
 	ss ABitOfEverythingServiceServer
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Create_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) Create(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -459,7 +459,7 @@ func (s defaultABitOfEverythingServiceDecorator) Create_0(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CreateBody_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) CreateBody(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -490,7 +490,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBody_0(ctx *gin.Context) 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CreateBook_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) CreateBook(ctx *gin.Context) {
 	var req CreateBookRequest
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -521,7 +521,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBook_0(ctx *gin.Context) 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) UpdateBook_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) UpdateBook(ctx *gin.Context) {
 	var req UpdateBookRequest
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -552,7 +552,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateBook_0(ctx *gin.Context) 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Lookup_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) Lookup(ctx *gin.Context) {
 	var req IdMessage
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -575,7 +575,7 @@ func (s defaultABitOfEverythingServiceDecorator) Lookup_0(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Update_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) Update(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -607,7 +607,7 @@ func (s defaultABitOfEverythingServiceDecorator) Update_0(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) UpdateV2_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) UpdateV2(ctx *gin.Context) {
 	var req UpdateV2Request
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -638,7 +638,6 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_0(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
-
 func (s defaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 	var req UpdateV2Request
 	shouldBindPayload := func(obj interface{}) error {
@@ -670,7 +669,6 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
-
 func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 	var req UpdateV2Request
 	shouldBindPayload := func(obj interface{}) error {
@@ -703,7 +701,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Delete_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) Delete(ctx *gin.Context) {
 	var req IdMessage
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -726,7 +724,7 @@ func (s defaultABitOfEverythingServiceDecorator) Delete_0(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) GetQuery_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) GetQuery(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -749,7 +747,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetQuery_0(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery(ctx *gin.Context) {
 	var req ABitOfEverythingRepeated
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -772,7 +770,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery_0(ctx *gin.Con
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Echo_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) Echo(ctx *gin.Context) {
 	var req StringMessage
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -794,7 +792,6 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_0(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
-
 func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 	var req StringMessage
 	shouldBindPayload := func(obj interface{}) error {
@@ -825,7 +822,6 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
-
 func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 	var req StringMessage
 
@@ -847,7 +843,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -879,7 +875,7 @@ func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho_0(ctx *gin.Context
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Timeout_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) Timeout(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -900,7 +896,7 @@ func (s defaultABitOfEverythingServiceDecorator) Timeout_0(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -921,7 +917,7 @@ func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails_0(ctx *gin.Con
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody(ctx *gin.Context) {
 	var req MessageWithBody
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -953,7 +949,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody_0(ctx *gin.C
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody(ctx *gin.Context) {
 	var req Body
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -985,7 +981,7 @@ func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody_0(ctx *gin.Co
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -1008,7 +1004,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams_0(ctx *gin.
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -1031,7 +1027,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams_0
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -1063,7 +1059,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams_0(ctx *gin
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -1084,7 +1080,7 @@ func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType_0(
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum(ctx *gin.Context) {
 	var req MessageWithPathEnum
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -1105,7 +1101,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum_0(ctx *gi
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum(ctx *gin.Context) {
 	var req MessageWithNestedPathEnum
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -1126,7 +1122,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum_0(c
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckStatus_0(ctx *gin.Context) {
+func (s defaultABitOfEverythingServiceDecorator) CheckStatus(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -1150,33 +1146,33 @@ func (s defaultABitOfEverythingServiceDecorator) CheckStatus_0(ctx *gin.Context)
 // RegisterABitOfEverythingServiceServer registers the http handlers for service ABitOfEverythingService to "router".
 func RegisterABitOfEverythingServiceServer(router gin.IRouter, s ABitOfEverythingServiceServer) {
 	d := defaultABitOfEverythingServiceDecorator{ss: s}
-	router.Handle("POST", "/v1/example/a_bit_of_everything/:float_value/:double_value/:int64_value/separator/:uint64_value/:int32_value/:fixed64_value/:fixed32_value/:bool_value/{string_value=strprefix/*}/:uint32_value/:sfixed32_value/:sfixed64_value/:sint32_value/:sint64_value/:nonConventionalNameValue/:enum_value/:path_enum_value/:nested_path_enum_value/:enum_value_annotation", d.Create_0)
-	router.Handle("POST", "/v1/example/a_bit_of_everything", d.CreateBody_0)
-	router.Handle("POST", "/v1/{parent=publishers/*}/books", d.CreateBook_0)
-	router.Handle("PATCH", "/v1/{book.name=publishers/*/books/*}", d.UpdateBook_0)
-	router.Handle("GET", "/v1/example/a_bit_of_everything/:uuid", d.Lookup_0)
-	router.Handle("PUT", "/v1/example/a_bit_of_everything/:uuid", d.Update_0)
-	router.Handle("PUT", "/v2/example/a_bit_of_everything/:abe.uuid", d.UpdateV2_0)
+	router.Handle("POST", "/v1/example/a_bit_of_everything/:float_value/:double_value/:int64_value/separator/:uint64_value/:int32_value/:fixed64_value/:fixed32_value/:bool_value/{string_value=strprefix/*}/:uint32_value/:sfixed32_value/:sfixed64_value/:sint32_value/:sint64_value/:nonConventionalNameValue/:enum_value/:path_enum_value/:nested_path_enum_value/:enum_value_annotation", d.Create)
+	router.Handle("POST", "/v1/example/a_bit_of_everything", d.CreateBody)
+	router.Handle("POST", "/v1/{parent=publishers/*}/books", d.CreateBook)
+	router.Handle("PATCH", "/v1/{book.name=publishers/*/books/*}", d.UpdateBook)
+	router.Handle("GET", "/v1/example/a_bit_of_everything/:uuid", d.Lookup)
+	router.Handle("PUT", "/v1/example/a_bit_of_everything/:uuid", d.Update)
+	router.Handle("PUT", "/v2/example/a_bit_of_everything/:abe.uuid", d.UpdateV2)
 	router.Handle("PATCH", "/v2/example/a_bit_of_everything/:abe.uuid", d.UpdateV2_1)
 	router.Handle("PATCH", "/v2a/example/a_bit_of_everything/:abe.uuid", d.UpdateV2_2)
-	router.Handle("DELETE", "/v1/example/a_bit_of_everything/:uuid", d.Delete_0)
-	router.Handle("GET", "/v1/example/a_bit_of_everything/query/:uuid", d.GetQuery_0)
-	router.Handle("GET", "/v1/example/a_bit_of_everything_repeated/:path_repeated_float_value/:path_repeated_double_value/:path_repeated_int64_value/:path_repeated_uint64_value/:path_repeated_int32_value/:path_repeated_fixed64_value/:path_repeated_fixed32_value/:path_repeated_bool_value/:path_repeated_string_value/:path_repeated_bytes_value/:path_repeated_uint32_value/:path_repeated_enum_value/:path_repeated_sfixed32_value/:path_repeated_sfixed64_value/:path_repeated_sint32_value/:path_repeated_sint64_value", d.GetRepeatedQuery_0)
-	router.Handle("GET", "/v1/example/a_bit_of_everything/echo/:value", d.Echo_0)
+	router.Handle("DELETE", "/v1/example/a_bit_of_everything/:uuid", d.Delete)
+	router.Handle("GET", "/v1/example/a_bit_of_everything/query/:uuid", d.GetQuery)
+	router.Handle("GET", "/v1/example/a_bit_of_everything_repeated/:path_repeated_float_value/:path_repeated_double_value/:path_repeated_int64_value/:path_repeated_uint64_value/:path_repeated_int32_value/:path_repeated_fixed64_value/:path_repeated_fixed32_value/:path_repeated_bool_value/:path_repeated_string_value/:path_repeated_bytes_value/:path_repeated_uint32_value/:path_repeated_enum_value/:path_repeated_sfixed32_value/:path_repeated_sfixed64_value/:path_repeated_sint32_value/:path_repeated_sint64_value", d.GetRepeatedQuery)
+	router.Handle("GET", "/v1/example/a_bit_of_everything/echo/:value", d.Echo)
 	router.Handle("POST", "/v2/example/echo", d.Echo_1)
 	router.Handle("GET", "/v2/example/echo", d.Echo_2)
-	router.Handle("POST", "/v1/example/deep_path/:single_nested.name", d.DeepPathEcho_0)
-	router.Handle("GET", "/v2/example/timeout", d.Timeout_0)
-	router.Handle("GET", "/v2/example/errorwithdetails", d.ErrorWithDetails_0)
-	router.Handle("POST", "/v2/example/withbody/:id", d.GetMessageWithBody_0)
-	router.Handle("POST", "/v2/example/postwithemptybody/:name", d.PostWithEmptyBody_0)
-	router.Handle("GET", "/v1/example/a_bit_of_everything/params/get/:single_nested.name", d.CheckGetQueryParams_0)
-	router.Handle("GET", "/v1/example/a_bit_of_everything/params/get/nested_enum/:single_nested.ok", d.CheckNestedEnumGetQueryParams_0)
-	router.Handle("POST", "/v1/example/a_bit_of_everything/params/post/:string_value", d.CheckPostQueryParams_0)
-	router.Handle("GET", "/v2/example/overwriteresponsecontenttype", d.OverwriteResponseContentType_0)
-	router.Handle("GET", "/v2/{value}:check", d.CheckExternalPathEnum_0)
-	router.Handle("GET", "/v3/{value}:check", d.CheckExternalNestedPathEnum_0)
-	router.Handle("GET", "/v1/example/checkStatus", d.CheckStatus_0)
+	router.Handle("POST", "/v1/example/deep_path/:single_nested.name", d.DeepPathEcho)
+	router.Handle("GET", "/v2/example/timeout", d.Timeout)
+	router.Handle("GET", "/v2/example/errorwithdetails", d.ErrorWithDetails)
+	router.Handle("POST", "/v2/example/withbody/:id", d.GetMessageWithBody)
+	router.Handle("POST", "/v2/example/postwithemptybody/:name", d.PostWithEmptyBody)
+	router.Handle("GET", "/v1/example/a_bit_of_everything/params/get/:single_nested.name", d.CheckGetQueryParams)
+	router.Handle("GET", "/v1/example/a_bit_of_everything/params/get/nested_enum/:single_nested.ok", d.CheckNestedEnumGetQueryParams)
+	router.Handle("POST", "/v1/example/a_bit_of_everything/params/post/:string_value", d.CheckPostQueryParams)
+	router.Handle("GET", "/v2/example/overwriteresponsecontenttype", d.OverwriteResponseContentType)
+	router.Handle("GET", "/v2/{value}:check", d.CheckExternalPathEnum)
+	router.Handle("GET", "/v3/{value}:check", d.CheckExternalNestedPathEnum)
+	router.Handle("GET", "/v1/example/checkStatus", d.CheckStatus)
 }
 
 // ABitOfEverythingServiceClient is the client API for for ABitOfEverythingService service.
@@ -2007,7 +2003,7 @@ type defaultCamelCaseServiceNameDecorator struct {
 	ss CamelCaseServiceNameServer
 }
 
-func (s defaultCamelCaseServiceNameDecorator) Empty_0(ctx *gin.Context) {
+func (s defaultCamelCaseServiceNameDecorator) Empty(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -2031,7 +2027,7 @@ func (s defaultCamelCaseServiceNameDecorator) Empty_0(ctx *gin.Context) {
 // RegisterCamelCaseServiceNameServer registers the http handlers for service CamelCaseServiceName to "router".
 func RegisterCamelCaseServiceNameServer(router gin.IRouter, s CamelCaseServiceNameServer) {
 	d := defaultCamelCaseServiceNameDecorator{ss: s}
-	router.Handle("GET", "/v2/example/empty", d.Empty_0)
+	router.Handle("GET", "/v2/example/empty", d.Empty)
 }
 
 // CamelCaseServiceNameClient is the client API for for CamelCaseServiceName service.

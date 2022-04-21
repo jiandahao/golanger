@@ -97,7 +97,7 @@ type defaultEchoDecorator struct {
 	ss EchoServer
 }
 
-func (s defaultEchoDecorator) GetEcho_0(ctx *gin.Context) {
+func (s defaultEchoDecorator) GetEcho(ctx *gin.Context) {
 	var req GetEchoReq
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -120,7 +120,6 @@ func (s defaultEchoDecorator) GetEcho_0(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
-
 func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 	var req GetEchoReq
 
@@ -146,7 +145,7 @@ func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultEchoDecorator) PostEcho_0(ctx *gin.Context) {
+func (s defaultEchoDecorator) PostEcho(ctx *gin.Context) {
 	var req PostEchoReq
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -178,7 +177,6 @@ func (s defaultEchoDecorator) PostEcho_0(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(ctx, resp)
 }
-
 func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 	var req PostEchoReq
 	shouldBindPayload := func(obj interface{}) error {
@@ -213,7 +211,7 @@ func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(ctx, resp)
 }
 
-func (s defaultEchoDecorator) PostFormEcho_0(ctx *gin.Context) {
+func (s defaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
 	var req PostFormEchoReq
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -247,11 +245,11 @@ func (s defaultEchoDecorator) PostFormEcho_0(ctx *gin.Context) {
 // RegisterEchoServer registers the http handlers for service Echo to "router".
 func RegisterEchoServer(router gin.IRouter, s EchoServer) {
 	d := defaultEchoDecorator{ss: s}
-	router.Handle("GET", "/api/v1/echo", d.GetEcho_0)
+	router.Handle("GET", "/api/v1/echo", d.GetEcho)
 	router.Handle("GET", "/api/v1/echo/:param_in_uri_or_query", d.GetEcho_1)
-	router.Handle("POST", "/api/v1/echo", d.PostEcho_0)
+	router.Handle("POST", "/api/v1/echo", d.PostEcho)
 	router.Handle("POST", "/api/v1/echo/:param_in_uri_or_query", d.PostEcho_1)
-	router.Handle("POST", "/api/v1/form", d.PostFormEcho_0)
+	router.Handle("POST", "/api/v1/form", d.PostFormEcho)
 }
 
 // EchoClient is the client API for for Echo service.

@@ -210,7 +210,11 @@ var serviceDecoratorTempl = `
 		{{$hasQueryParam := .Request.HasQueryParam}}
 		{{$hasFile := .Request.HasFile}}
 		{{range $index, $rule := .HTTPRules}}
+			{{- if eq $index 0 -}}
+			func (s default{{$serviceName}}Decorator) {{$methodName}}(ctx *gin.Context){
+			{{- else -}}
 			func (s default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
+			{{- end -}}
 				var req {{$requestParamType}}
 				
 				{{- if eq $rule.Method "GET" "DELETE" }}
@@ -273,7 +277,7 @@ var registerTempl = `
 		{{- range .Methods -}}
 			{{ $methodName := .Name }}
 			{{- range $index, $rule := .HTTPRules}}
-				router.Handle("{{$rule.Method}}", "{{$rule.Path}}", d.{{$methodName}}_{{$index}})
+				router.Handle("{{$rule.Method}}", "{{$rule.Path}}", {{if eq $index 0}}d.{{$methodName}}{{else}}d.{{$methodName}}_{{$index}}{{end}})
 			{{- end}}
 		{{- end}}
 	}
