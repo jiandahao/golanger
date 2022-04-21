@@ -233,6 +233,41 @@ message GetProfileRequest {
 }
 ```
 
+- Bind URI
+```bash
+message XXXXX {
+        string user_id = 1; // uri:"user_id"
+}
+``` 
+- Bind Query
+```bash
+message XXXXX {
+        string user_id = 1; // query:"user_id"
+}
+``` 
+
+- Bind Header
+```bash
+message XXXXX {
+        string user_id = 1; // header:"user_id"
+}
+``` 
+
+- Bind Files
+```bash
+message XXXXX {
+        bytes image = 1; // file:"image"
+        repeated bytes images = 2; // file:"images"
+}
+``` 
+
+- Bind Form data
+```bash
+message XXXXX {
+        string name = 1; // form:"image"
+}
+``` 
+
 ### installation & usage
 go install github.com/jiandahao/golanger/cmd/protoc-gen-golangergin
 
