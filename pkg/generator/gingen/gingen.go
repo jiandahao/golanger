@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-// ProtocPlugin is a plugin used to generate service implementaion
+// ProtocPlugin is a plugin used to generate service implementation
 type ProtocPlugin struct {
 	gen *protogen.Plugin
 }

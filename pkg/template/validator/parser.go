@@ -135,7 +135,7 @@ func parseInternal(text string, baseTpl *textTemplate.Template, depth int) (t *t
 			token := string(tplErr.Description[tokenLoc[0]+1 : tokenLoc[1]-1])
 			lastChar := strings.LastIndex(lines[tplErr.Line], token)
 			firstChar := strings.Index(lines[tplErr.Line], token)
-			// if it's not the only match, we don't know which character is the one the error occured on
+			// if it's not the only match, we don't know which character is the one the error occurred on
 			if lastChar == firstChar {
 				tplErr.Char = firstChar
 			}
