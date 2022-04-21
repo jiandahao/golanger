@@ -218,3 +218,57 @@ type Jobs struct {
         Name string `json:"name,omitempty"`
 }
 ```
+
+## Generator for gin service
+[protoc-gen-golangergin](cmd/protoc-gen-golangergin) is a protoc plugin which is helpful to generate gin service code. Examples are available [here](cmd/protoc-gen-golangergin/example).
+
+protoc-gen-golangergin use field's trailing comments to specify the extra strcut tags. It's useful to integrate with other serializers that use reflect. For instance:
+
+```protobuf
+// get user profile request
+message GetProfileRequest {
+	string user_id = 1;// uri:"user_id" form:"user_id" validate:"required"
+	string create_time = 2; // form:"create_time"
+	string token = 3; // header:"token"
+}
+```
+
+- Bind URI
+```bash
+message XXXXX {
+        string user_id = 1; // uri:"user_id"
+}
+``` 
+- Bind Query
+```bash
+message XXXXX {
+        string user_id = 1; // query:"user_id"
+}
+``` 
+
+- Bind Header
+```bash
+message XXXXX {
+        string user_id = 1; // header:"user_id"
+}
+``` 
+
+- Bind Files
+```bash
+message XXXXX {
+        bytes image = 1; // file:"image"
+        repeated bytes images = 2; // file:"images"
+}
+``` 
+
+- Bind Form data
+```bash
+message XXXXX {
+        string name = 1; // form:"image"
+}
+``` 
+
+### installation & usage
+go install github.com/jiandahao/golanger/cmd/protoc-gen-golangergin
+
+protoc --golangergin_out=. -I. *.proto

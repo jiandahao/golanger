@@ -18,8 +18,9 @@ const (
 )
 
 type transactionContext struct {
-	tx      *gorm.DB
-	invalid bool
+	tx             *gorm.DB
+	afterCommitFns []func() // callback functions called after committing the transaction.
+	invalid        bool
 }
 
 // TransactionHandler transaction handler
@@ -42,7 +43,7 @@ type TransactionHandler func(ctx context.Context, tx *gorm.DB) error
 		})
 	}
 */
-func Transaction(ctx context.Context, conn *gorm.DB, handler TransactionHandler) (err error) {
+func Transaction(ctx context.Context, conn *gorm.DB, handler TransactionHandler, afterCommitFns ...func()) (err error) {
 	var isCreator bool
 
 	tc, exists := ctx.Value(transactionKey).(*transactionContext)
@@ -93,8 +94,21 @@ func Transaction(ctx context.Context, conn *gorm.DB, handler TransactionHandler)
 			fmt.Printf("failed to commit the transaction: %v\n", err)
 		}
 
+		for _, callback := range tc.afterCommitFns {
+			callback()
+		}
+
 		tc.invalid = true
 	}()
+
+	if len(afterCommitFns) > 0 {
+		for _, callback := range afterCommitFns {
+			if callback == nil {
+				return fmt.Errorf("invalid callback functions: nil")
+			}
+		}
+		tc.afterCommitFns = append(tc.afterCommitFns, afterCommitFns...)
+	}
 
 	err = handler(ctx, tc.tx)
 

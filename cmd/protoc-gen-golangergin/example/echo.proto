@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+option go_package = "./echo";
+
+package echo;
+
+service Echo {
+    rpc GetEcho(GetEchoReq) returns (GetEchoResp) {
+        option (google.api.http) = {
+            get: "/api/v1/echo"
+            additional_bindings {
+				get: "/api/v1/echo/{param_in_uri_or_query}"
+			}
+        };
+    }
+
+    rpc PostEcho(PostEchoReq) returns (PostEchoResp) {
+        option (google.api.http) = {
+            post: "/api/v1/echo"
+            additional_bindings {
+				post: "/api/v1/echo/{param_in_uri_or_query}"
+			}
+        };
+    }
+
+    rpc PostFormEcho(PostFormEchoReq) returns (PostFormEchoResp) {
+        option (google.api.http) = {
+            post:"/api/v1/form"
+        };
+    };
+};
+
+message GetEchoReq {
+    string param_in_uri_or_query = 1; // uri:"param_in_uri_or_query" query:"param_in_uri_or_query"
+    string param_in_header_or_query = 2; // header:"param_in_header_or_query" query:"param_in_header_or_query"
+}
+
+message GetEchoResp {
+    string param_in_uri_or_query = 1;
+    string param_in_header_or_query = 2;
+}
+
+message PostEchoReq {
+    string param_in_uri_or_query = 1; // uri:"param_in_uri_or_query" query:"param_in_uri_or_query"
+    string param_in_header = 2; // header:"param_in_header"
+    string param_in_body = 3;
+}
+
+message PostEchoResp {
+    string param_in_uri_or_query = 1;
+    string param_in_header = 2;
+    string param_in_body = 3;
+}
+
+message PostFormEchoReq {
+    string param_in_form_a = 1; // form:"param_in_form_a"
+    string param_in_form_b = 2; // form:"param_in_form_b"
+    repeated bytes files_a = 3; // file:"files_a"
+    bytes file_b = 4; // file:"file_b"
+}
+
+message PostFormEchoResp {
+    string param_in_form_a = 1;
+    string param_in_form_b = 2;
+    string filename_a = 3; 
+    string filename_b = 4;
+}
+

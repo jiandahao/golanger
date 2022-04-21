@@ -12,7 +12,7 @@ import (
 var once sync.Once
 
 // GenerateFromDDL generate database CURD code from DDL.
-func GenerateFromDDL(ddlFilePath string, outpDir string) error {
+func GenerateFromDDL(ddlFilePath string, moduleName string, outpDir string, withCache bool) error {
 	once.Do(func() {
 		initTemplates()
 	})
@@ -28,7 +28,7 @@ func GenerateFromDDL(ddlFilePath string, outpDir string) error {
 		return err
 	}
 
-	if err := generetor.StartFromDDL(ddlFilePath, false, "database"); err != nil {
+	if err := generetor.StartFromDDL(ddlFilePath, withCache, moduleName); err != nil {
 		return err
 	}
 
@@ -60,6 +60,7 @@ func initTemplates() {
 
 			default{{.upperStartCamelObject}}Model struct {
 				dbConn *gorm.DB
+				{{if .withCache}} cachedConn cache.CachedConn {{end}}
 			}
 
 			// {{.upperStartCamelObject}} describes the table schema structure.
@@ -75,9 +76,10 @@ func initTemplates() {
 	}
 
 	// New{{.upperStartCamelObject}}Model creates a default{{.upperStartCamelObject}}Model.
-	func New{{.upperStartCamelObject}}Model(conn *gorm.DB) {{.upperStartCamelObject}}Model {
+	func New{{.upperStartCamelObject}}Model(conn *gorm.DB {{if .withCache}}, cacheConf cache.Config{{end}}) {{.upperStartCamelObject}}Model {
 		return &default{{.upperStartCamelObject}}Model{
 			dbConn: conn,
+			{{- if .withCache}} cachedConn: cache.NewDefaultConnWithCache(cacheConf), {{end}}
 			// table:      {{.table}},
 		}
 	}
@@ -89,7 +91,7 @@ func initTemplates() {
 	template.Insert = `
 	// Insert insert one record into user_tab.
 	func (m *default{{.upperStartCamelObject}}Model) Insert(ctx context.Context, data *{{.upperStartCamelObject}}) error {
-		err := utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+		err := dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 			return tx.Create(&data).Error
 		})
 
@@ -101,22 +103,48 @@ func initTemplates() {
 	}
 	`
 
-	template.DeleteMethod = ` Delete(ctx context.Context,{{.lowerStartCamelPrimaryKey}} {{.dataType}}) error`
+	template.DeleteMethod = `Delete(ctx context.Context,{{.lowerStartCamelPrimaryKey}} {{.dataType}}) error`
 	template.Delete = `
 	// Delete deletes by primary key.
 	func (m *default{{.upperStartCamelObject}}Model) Delete(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}) error {
-		return utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+		{{if .withCache}}
+			{{if .containsIndexCache}}data, err:=m.FindOne(ctx, {{.lowerStartCamelPrimaryKey}})
+			if err!=nil{
+				return err
+			}{{end}}
+	
+			{{.keys}}
+
+			keys := []string{ {{.keyValues}} }
+			return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+				return tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE {{.originalPrimaryKey}} = ? LIMIT 1", {{.upperStartCamelObject}}{}.TableName()), {{.lowerStartCamelPrimaryKey}}).Error
+			}, func()  {
+				m.cachedConn.DelCache(keys...)
+			})
+		{{- else -}}
+		return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 			return tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE {{.originalPrimaryKey}} = ? LIMIT 1", {{.upperStartCamelObject}}{}.TableName()), {{.lowerStartCamelPrimaryKey}}).Error
 		})
+		{{- end}}
 	}`
 
 	template.UpdateMethod = `Update(ctx context.Context, data *{{.upperStartCamelObject}}) error `
 	template.Update = `
 	// Update update a record.
 	func (m *default{{.upperStartCamelObject}}Model) Update(ctx context.Context, data *{{.upperStartCamelObject}}) error {
-		return utils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+		{{if .withCache}}{{- .keys}}
+		keys := []string{ {{.keyValues}}}
+
+		return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
+			return tx.Updates(data).Error
+		}, func()  {
+			 m.cachedConn.DelCache(keys...)
+		})
+		{{- else -}}
+		return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
 			return tx.Updates(data).Error
 		})
+		{{- end}}
 	}`
 
 	template.FindOneMethod = `FindOne(ctx context.Context,{{.lowerStartCamelPrimaryKey}} {{.dataType}}) (*{{.upperStartCamelObject}}, error)`
@@ -124,48 +152,77 @@ func initTemplates() {
 	// FindOne find records by primary key.
 	func (m *default{{.upperStartCamelObject}}Model) FindOne(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}) (*{{.upperStartCamelObject}}, error) {
 		var resp {{.upperStartCamelObject}}
+		{{if .withCache}}{{.cacheKey}}
+		err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
+			return m.dbConn.Where("{{.originalPrimaryKey}}  = ?", id).Limit(1).Find(v).Error
+		}, {{.cacheKeyVariable}})
+		{{else}}
 		err := m.dbConn.Where("{{.originalPrimaryKey}} = ?", id).Limit(1).Find(&resp).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		{{end}}
+		switch err {
+		case nil:
+			return &resp, nil
+		case gorm.ErrRecordNotFound:
 			return nil, nil
-		}
-	
-		if err != nil {
+		default:
 			return nil, err
 		}
-	
-		return &resp, nil
 	}`
 
 	template.FindOneByFieldMethod = `FindOneBy{{.upperField}}(ctx context.Context,{{.in}}) (*{{.upperStartCamelObject}}, error)`
 	template.FindOneByField = `
-	// FindOneBy find records by {{.upperField}}.
+	// FindOneBy{{.upperField}} finds records by {{.upperField}}.
 	func (m *default{{.upperStartCamelObject}}Model) FindOneBy{{.upperField}}(ctx context.Context, {{.in}}) (*{{.upperStartCamelObject}}, error) {
 		var resp {{.upperStartCamelObject}}
+		{{if .withCache}}{{.cacheKey}}
+		err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
+			return m.dbConn.Where("{{.originalField}}", {{.lowerStartCamelField}}).Limit(1).Take(v).Error
+		}, {{.cacheKeyVariable}})
+		{{else}}
 		err := m.dbConn.Where("{{.originalField}}", {{.lowerStartCamelField}}).Limit(1).Take(&resp).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		{{end}}
+		switch err {
+		case nil:
+			return &resp, nil
+		case gorm.ErrRecordNotFound:
 			return nil, nil
-		}
-
-		if err != nil {
+		default:
 			return nil, err
 		}
-	
-		return &resp, nil
 	}`
 
-	template.Imports = ``
-	template.ImportsNoCache = `
+	template.Imports = `
 	import (
 		"context"
-		"errors"
 		"fmt"
 		"database/sql"
 	
-		utils "github.com/jiandahao/golanger/pkg/utils/db"
+		"github.com/jiandahao/golanger/pkg/storage/cache"
+		dbutils "github.com/jiandahao/golanger/pkg/storage/db"
 		"gorm.io/gorm"
-	)`
+	)
+	
+	var _ = sql.NullString{}
+	`
+
+	template.ImportsNoCache = `
+	import (
+		"context"
+		"fmt"
+		"database/sql"
+	
+		dbutils "github.com/jiandahao/golanger/pkg/storage/db"
+		"gorm.io/gorm"
+	)
+	var _ = sql.NullString{}
+	`
 
 	template.FindOneByFieldExtraMethod = ``
 
-	template.Vars = ``
+	template.Vars = `
+	{{if .withCache}}
+	var (
+		{{.cacheKeys}}
+	)
+	{{end}}`
 }
