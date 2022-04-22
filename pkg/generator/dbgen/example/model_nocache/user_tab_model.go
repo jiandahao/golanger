@@ -46,7 +46,6 @@ func (UserTab) TableName() string {
 func NewUserTabModel(conn *gorm.DB) UserTabModel {
 	return &defaultUserTabModel{
 		dbConn: conn,
-		// table:      "`user_tab`",
 	}
 }
 
@@ -79,7 +78,7 @@ func (m *defaultUserTabModel) FindOne(ctx context.Context, id int64) (*UserTab, 
 	}
 }
 
-// FindOneBy find records by Email.
+// FindOneByEmail finds records by Email.
 func (m *defaultUserTabModel) FindOneByEmail(ctx context.Context, email string) (*UserTab, error) {
 	var resp UserTab
 
@@ -95,7 +94,7 @@ func (m *defaultUserTabModel) FindOneByEmail(ctx context.Context, email string) 
 	}
 }
 
-// FindOneBy find records by Username.
+// FindOneByUsername finds records by Username.
 func (m *defaultUserTabModel) FindOneByUsername(ctx context.Context, username string) (*UserTab, error) {
 	var resp UserTab
 

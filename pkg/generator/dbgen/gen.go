@@ -76,11 +76,12 @@ func initTemplates() {
 	}
 
 	// New{{.upperStartCamelObject}}Model creates a default{{.upperStartCamelObject}}Model.
-	func New{{.upperStartCamelObject}}Model(conn *gorm.DB {{if .withCache}}, cacheConf cache.Config{{end}}) {{.upperStartCamelObject}}Model {
+	func New{{.upperStartCamelObject}}Model(conn *gorm.DB {{if .withCache}}, cacheConn cache.CachedConn{{end}}) {{.upperStartCamelObject}}Model {
 		return &default{{.upperStartCamelObject}}Model{
 			dbConn: conn,
-			{{- if .withCache}} cachedConn: cache.NewDefaultConnWithCache(cacheConf), {{end}}
-			// table:      {{.table}},
+			{{- if .withCache}} 
+			cachedConn: cacheConn, 
+			{{- end }}
 		}
 	}
 	`
