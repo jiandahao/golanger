@@ -253,7 +253,7 @@ var serviceDecoratorTempl = `
 					}
 				}
 
-				resp, err := s.ss.{{$methodName}}(ctx, &req)
+				resp, err := s.ss.{{$methodName}}(runtime.NewContext(ctx), &req)
 				if err != nil {
 					runtime.HTTPError(ctx, err)
 					return
