@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"context"
+	"errors"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
@@ -75,6 +77,29 @@ func NewDefaultCache(c Config) Cache {
 	rds := crds.New(c.Addr, crds.WithPass(c.Pass))
 	cc := cache.NewNode(rds, exclusiveCalls, stats, c.ErrNotFound, newCacheOption(c)...)
 	return cc
+}
+
+// TodoCache returns a non-nil, empty Cache. It implements Cache interface, but cache nothing.
+func TodoCache() Cache {
+	context.TODO()
+	return &todoCache{errNotFound: errors.New("record not found")}
+}
+
+// todoCache implements Cache interface, but cache nothing. Use it if you are not ready to use cache, but w.
+type todoCache struct {
+	errNotFound error
+}
+
+func (c *todoCache) Del(keys ...string) error                                            { return nil }
+func (c *todoCache) Get(key string, v interface{}) error                                 { return nil }
+func (c *todoCache) IsNotFound(err error) bool                                           { return err == c.errNotFound }
+func (c *todoCache) Set(key string, v interface{}) error                                 { return nil }
+func (c *todoCache) SetWithExpire(key string, v interface{}, expire time.Duration) error { return nil }
+func (c *todoCache) Take(v interface{}, key string, query func(v interface{}) error) error {
+	return c.errNotFound // alway miss
+}
+func (c *todoCache) TakeWithExpire(v interface{}, key string, query func(v interface{}, expire time.Duration) error) error {
+	return c.errNotFound // alway miss
 }
 
 // NewDefaultCachedConn creates a cached conn.
