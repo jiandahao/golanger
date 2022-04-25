@@ -8,8 +8,6 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	crds "github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/syncx"
-
-	"gorm.io/gorm"
 )
 
 type (
@@ -45,8 +43,7 @@ type (
 	}
 
 	defaultCachedConn struct {
-		dbConn *gorm.DB
-		cache  Cache
+		cache Cache
 	}
 )
 
@@ -96,10 +93,10 @@ func (c *todoCache) IsNotFound(err error) bool                                  
 func (c *todoCache) Set(key string, v interface{}) error                                 { return nil }
 func (c *todoCache) SetWithExpire(key string, v interface{}, expire time.Duration) error { return nil }
 func (c *todoCache) Take(v interface{}, key string, query func(v interface{}) error) error {
-	return c.errNotFound // alway miss
+	return query(v)
 }
 func (c *todoCache) TakeWithExpire(v interface{}, key string, query func(v interface{}, expire time.Duration) error) error {
-	return c.errNotFound // alway miss
+	return query(v, time.Second)
 }
 
 // NewDefaultCachedConn creates a cached conn.
