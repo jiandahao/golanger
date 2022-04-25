@@ -112,7 +112,7 @@ func (s defaultEchoDecorator) GetEcho(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.GetEcho(ctx, &req)
+	resp, err := s.ss.GetEcho(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -136,7 +136,7 @@ func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.GetEcho(ctx, &req)
+	resp, err := s.ss.GetEcho(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -169,7 +169,7 @@ func (s defaultEchoDecorator) PostEcho(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.PostEcho(ctx, &req)
+	resp, err := s.ss.PostEcho(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -202,7 +202,7 @@ func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.PostEcho(ctx, &req)
+	resp, err := s.ss.PostEcho(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -233,7 +233,7 @@ func (s defaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.PostFormEcho(ctx, &req)
+	resp, err := s.ss.PostFormEcho(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return

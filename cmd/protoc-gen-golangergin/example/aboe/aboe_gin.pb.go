@@ -450,7 +450,7 @@ func (s defaultABitOfEverythingServiceDecorator) Create(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Create(ctx, &req)
+	resp, err := s.ss.Create(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -481,7 +481,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBody(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.CreateBody(ctx, &req)
+	resp, err := s.ss.CreateBody(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -512,7 +512,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBook(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.CreateBook(ctx, &req)
+	resp, err := s.ss.CreateBook(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -543,7 +543,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateBook(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.UpdateBook(ctx, &req)
+	resp, err := s.ss.UpdateBook(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -566,7 +566,7 @@ func (s defaultABitOfEverythingServiceDecorator) Lookup(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Lookup(ctx, &req)
+	resp, err := s.ss.Lookup(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -598,7 +598,7 @@ func (s defaultABitOfEverythingServiceDecorator) Update(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Update(ctx, &req)
+	resp, err := s.ss.Update(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -630,7 +630,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.UpdateV2(ctx, &req)
+	resp, err := s.ss.UpdateV2(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -661,7 +661,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.UpdateV2(ctx, &req)
+	resp, err := s.ss.UpdateV2(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -692,7 +692,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.UpdateV2(ctx, &req)
+	resp, err := s.ss.UpdateV2(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -715,7 +715,7 @@ func (s defaultABitOfEverythingServiceDecorator) Delete(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Delete(ctx, &req)
+	resp, err := s.ss.Delete(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -738,7 +738,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetQuery(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.GetQuery(ctx, &req)
+	resp, err := s.ss.GetQuery(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -761,7 +761,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery(ctx *gin.Conte
 		}
 	}
 
-	resp, err := s.ss.GetRepeatedQuery(ctx, &req)
+	resp, err := s.ss.GetRepeatedQuery(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -784,7 +784,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Echo(ctx, &req)
+	resp, err := s.ss.Echo(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -814,7 +814,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Echo(ctx, &req)
+	resp, err := s.ss.Echo(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -834,7 +834,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Echo(ctx, &req)
+	resp, err := s.ss.Echo(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -866,7 +866,7 @@ func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho(ctx *gin.Context) 
 		}
 	}
 
-	resp, err := s.ss.DeepPathEcho(ctx, &req)
+	resp, err := s.ss.DeepPathEcho(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -887,7 +887,7 @@ func (s defaultABitOfEverythingServiceDecorator) Timeout(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Timeout(ctx, &req)
+	resp, err := s.ss.Timeout(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -908,7 +908,7 @@ func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails(ctx *gin.Conte
 		}
 	}
 
-	resp, err := s.ss.ErrorWithDetails(ctx, &req)
+	resp, err := s.ss.ErrorWithDetails(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -940,7 +940,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody(ctx *gin.Con
 		}
 	}
 
-	resp, err := s.ss.GetMessageWithBody(ctx, &req)
+	resp, err := s.ss.GetMessageWithBody(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -972,7 +972,7 @@ func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody(ctx *gin.Cont
 		}
 	}
 
-	resp, err := s.ss.PostWithEmptyBody(ctx, &req)
+	resp, err := s.ss.PostWithEmptyBody(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -995,7 +995,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams(ctx *gin.Co
 		}
 	}
 
-	resp, err := s.ss.CheckGetQueryParams(ctx, &req)
+	resp, err := s.ss.CheckGetQueryParams(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -1018,7 +1018,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams(c
 		}
 	}
 
-	resp, err := s.ss.CheckNestedEnumGetQueryParams(ctx, &req)
+	resp, err := s.ss.CheckNestedEnumGetQueryParams(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -1050,7 +1050,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams(ctx *gin.C
 		}
 	}
 
-	resp, err := s.ss.CheckPostQueryParams(ctx, &req)
+	resp, err := s.ss.CheckPostQueryParams(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -1071,7 +1071,7 @@ func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType(ct
 		}
 	}
 
-	resp, err := s.ss.OverwriteResponseContentType(ctx, &req)
+	resp, err := s.ss.OverwriteResponseContentType(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -1092,7 +1092,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum(ctx *gin.
 		}
 	}
 
-	resp, err := s.ss.CheckExternalPathEnum(ctx, &req)
+	resp, err := s.ss.CheckExternalPathEnum(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -1113,7 +1113,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum(ctx
 		}
 	}
 
-	resp, err := s.ss.CheckExternalNestedPathEnum(ctx, &req)
+	resp, err := s.ss.CheckExternalNestedPathEnum(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -1134,7 +1134,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckStatus(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.CheckStatus(ctx, &req)
+	resp, err := s.ss.CheckStatus(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
@@ -2015,7 +2015,7 @@ func (s defaultCamelCaseServiceNameDecorator) Empty(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.Empty(ctx, &req)
+	resp, err := s.ss.Empty(runtime.NewContext(ctx), &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
