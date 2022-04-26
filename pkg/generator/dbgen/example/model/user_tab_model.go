@@ -76,7 +76,7 @@ func (m *defaultUserTabModel) FindOne(ctx context.Context, id int64) (*UserTab, 
 	var resp UserTab
 	testProjectUserTabIdKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabIdPrefix, id)
 	err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
-		return m.dbConn.Where("`id`  = ?", id).Limit(1).Find(v).Error
+		return m.dbConn.Where("`id`  = ?", id).Limit(1).Take(v).Error
 	}, testProjectUserTabIdKey)
 
 	switch err {

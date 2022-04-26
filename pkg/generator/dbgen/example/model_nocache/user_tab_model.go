@@ -66,7 +66,7 @@ func (m *defaultUserTabModel) Insert(ctx context.Context, data *UserTab) error {
 func (m *defaultUserTabModel) FindOne(ctx context.Context, id int64) (*UserTab, error) {
 	var resp UserTab
 
-	err := m.dbConn.Where("`id` = ?", id).Limit(1).Find(&resp).Error
+	err := m.dbConn.Where("`id` = ?", id).Limit(1).Take(&resp).Error
 
 	switch err {
 	case nil:

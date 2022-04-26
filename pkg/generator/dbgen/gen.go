@@ -155,10 +155,10 @@ func initTemplates() {
 		var resp {{.upperStartCamelObject}}
 		{{if .withCache}}{{.cacheKey}}
 		err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
-			return m.dbConn.Where("{{.originalPrimaryKey}}  = ?", id).Limit(1).Find(v).Error
+			return m.dbConn.Where("{{.originalPrimaryKey}}  = ?", id).Limit(1).Take(v).Error
 		}, {{.cacheKeyVariable}})
 		{{else}}
-		err := m.dbConn.Where("{{.originalPrimaryKey}} = ?", id).Limit(1).Find(&resp).Error
+		err := m.dbConn.Where("{{.originalPrimaryKey}} = ?", id).Limit(1).Take(&resp).Error
 		{{end}}
 		switch err {
 		case nil:
