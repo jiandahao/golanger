@@ -1,4 +1,4 @@
-package utils
+package dbutils
 
 import (
 	"context"

@@ -76,11 +76,12 @@ func initTemplates() {
 	}
 
 	// New{{.upperStartCamelObject}}Model creates a default{{.upperStartCamelObject}}Model.
-	func New{{.upperStartCamelObject}}Model(conn *gorm.DB {{if .withCache}}, cacheConf cache.Config{{end}}) {{.upperStartCamelObject}}Model {
+	func New{{.upperStartCamelObject}}Model(conn *gorm.DB {{if .withCache}}, cacheConn cache.CachedConn{{end}}) {{.upperStartCamelObject}}Model {
 		return &default{{.upperStartCamelObject}}Model{
 			dbConn: conn,
-			{{- if .withCache}} cachedConn: cache.NewDefaultConnWithCache(cacheConf), {{end}}
-			// table:      {{.table}},
+			{{- if .withCache}} 
+			cachedConn: cacheConn, 
+			{{- end }}
 		}
 	}
 	`
@@ -154,10 +155,10 @@ func initTemplates() {
 		var resp {{.upperStartCamelObject}}
 		{{if .withCache}}{{.cacheKey}}
 		err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
-			return m.dbConn.Where("{{.originalPrimaryKey}}  = ?", id).Limit(1).Find(v).Error
+			return m.dbConn.Where("{{.originalPrimaryKey}}  = ?", id).Limit(1).Take(v).Error
 		}, {{.cacheKeyVariable}})
 		{{else}}
-		err := m.dbConn.Where("{{.originalPrimaryKey}} = ?", id).Limit(1).Find(&resp).Error
+		err := m.dbConn.Where("{{.originalPrimaryKey}} = ?", id).Limit(1).Take(&resp).Error
 		{{end}}
 		switch err {
 		case nil:

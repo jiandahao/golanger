@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-// ProtocPlugin is a plugin used to generate service implementaion
+// ProtocPlugin is a plugin used to generate service implementation
 type ProtocPlugin struct {
 	gen *protogen.Plugin
 }
@@ -253,7 +253,7 @@ var serviceDecoratorTempl = `
 					}
 				}
 
-				resp, err := s.ss.{{$methodName}}(ctx, &req)
+				resp, err := s.ss.{{$methodName}}(runtime.NewContext(ctx), &req)
 				if err != nil {
 					runtime.HTTPError(ctx, err)
 					return

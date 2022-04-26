@@ -11,7 +11,7 @@ func NewCommand() *cli.Command {
 		Usage: "Tool for generating CURD code based on database ddl",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "ouput",
+				Name:    "output",
 				Aliases: []string{"o"},
 				Usage:   "set the output location",
 			},

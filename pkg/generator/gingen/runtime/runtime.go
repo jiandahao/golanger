@@ -1,8 +1,10 @@
 package runtime
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jiandahao/golanger/pkg/generator/gingen/status"
@@ -85,4 +87,35 @@ type responseData struct {
 	Msg     string      `json:"msg"`               // error short message
 	Details string      `json:"details,omitempty"` // error details if possible
 	Data    interface{} `json:"data,omitempty"`
+}
+
+// runtimeContext represents a runtime context.
+type runtimeContext struct {
+	ginCtx *gin.Context
+}
+
+// NewContext new context
+func NewContext(c *gin.Context) context.Context {
+	return &runtimeContext{ginCtx: c}
+}
+
+func (c *runtimeContext) Deadline() (deadline time.Time, ok bool) {
+	return c.ginCtx.Request.Context().Deadline()
+}
+
+func (c *runtimeContext) Done() <-chan struct{} {
+	return c.ginCtx.Request.Context().Done()
+}
+
+func (c *runtimeContext) Err() error {
+	return c.ginCtx.Request.Context().Err()
+}
+
+func (c *runtimeContext) Value(key interface{}) interface{} {
+	val := c.ginCtx.Value(key)
+	if val != nil {
+		return val
+	}
+
+	return c.ginCtx.Request.Context().Value(key)
 }
