@@ -1,3 +1,5 @@
+// Code generated.
+
 package model
 
 import (
@@ -61,7 +63,7 @@ func NewUserTabModel(conn *gorm.DB, cacheConn cache.CachedConn) UserTabModel {
 // Insert insert one record into user_tab.
 func (m *defaultUserTabModel) Insert(ctx context.Context, data *UserTab) error {
 	err := dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-		return tx.Create(&data).Error
+		return tx.WithContext(ctx).Create(&data).Error
 	})
 
 	if err != nil {
@@ -76,7 +78,7 @@ func (m *defaultUserTabModel) FindOne(ctx context.Context, id int64) (*UserTab, 
 	var resp UserTab
 	testProjectUserTabIdKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabIdPrefix, id)
 	err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
-		return m.dbConn.Where("`id`  = ?", id).Limit(1).Take(v).Error
+		return m.dbConn.WithContext(ctx).Where("`id`  = ?", id).Limit(1).Take(v).Error
 	}, testProjectUserTabIdKey)
 
 	switch err {
@@ -94,7 +96,7 @@ func (m *defaultUserTabModel) FindOneByEmail(ctx context.Context, email string) 
 	var resp UserTab
 	testProjectUserTabEmailKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabEmailPrefix, email)
 	err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
-		return m.dbConn.Where("`email` = ?", email).Limit(1).Take(v).Error
+		return m.dbConn.WithContext(ctx).Where("`email` = ?", email).Limit(1).Take(v).Error
 	}, testProjectUserTabEmailKey)
 
 	switch err {
@@ -112,7 +114,7 @@ func (m *defaultUserTabModel) FindOneByUsername(ctx context.Context, username st
 	var resp UserTab
 	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, username)
 	err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
-		return m.dbConn.Where("`username` = ?", username).Limit(1).Take(v).Error
+		return m.dbConn.WithContext(ctx).Where("`username` = ?", username).Limit(1).Take(v).Error
 	}, testProjectUserTabUsernameKey)
 
 	switch err {
@@ -127,13 +129,13 @@ func (m *defaultUserTabModel) FindOneByUsername(ctx context.Context, username st
 
 // Update update a record.
 func (m *defaultUserTabModel) Update(ctx context.Context, data *UserTab) error {
+	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, data.Username)
 	testProjectUserTabIdKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabIdPrefix, data.Id)
 	testProjectUserTabEmailKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabEmailPrefix, data.Email)
-	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, data.Username)
 	keys := []string{testProjectUserTabIdKey, testProjectUserTabEmailKey, testProjectUserTabUsernameKey}
 
 	return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-		return tx.Updates(data).Error
+		return tx.WithContext(ctx).Updates(data).Error
 	}, func() {
 		m.cachedConn.DelCache(keys...)
 	})
@@ -147,13 +149,13 @@ func (m *defaultUserTabModel) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 
+	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, data.Username)
 	testProjectUserTabIdKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabIdPrefix, id)
 	testProjectUserTabEmailKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabEmailPrefix, data.Email)
-	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, data.Username)
 
 	keys := []string{testProjectUserTabIdKey, testProjectUserTabEmailKey, testProjectUserTabUsernameKey}
 	return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-		return tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE `id` = ? LIMIT 1", UserTab{}.TableName()), id).Error
+		return tx.WithContext(ctx).Exec(fmt.Sprintf("DELETE FROM %s WHERE `id` = ? LIMIT 1", UserTab{}.TableName()), id).Error
 	}, func() {
 		m.cachedConn.DelCache(keys...)
 	})
