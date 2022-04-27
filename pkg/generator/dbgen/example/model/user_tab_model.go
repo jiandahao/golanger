@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/jiandahao/golanger/pkg/storage/cache"
-	dbutils "github.com/jiandahao/golanger/pkg/storage/db"
+	"github.com/jiandahao/golanger/pkg/storage/dbutils"
 	"gorm.io/gorm"
 )
 
@@ -129,9 +129,9 @@ func (m *defaultUserTabModel) FindOneByUsername(ctx context.Context, username st
 
 // Update update a record.
 func (m *defaultUserTabModel) Update(ctx context.Context, data *UserTab) error {
-	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, data.Username)
 	testProjectUserTabIdKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabIdPrefix, data.Id)
 	testProjectUserTabEmailKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabEmailPrefix, data.Email)
+	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, data.Username)
 	keys := []string{testProjectUserTabIdKey, testProjectUserTabEmailKey, testProjectUserTabUsernameKey}
 
 	return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
@@ -149,9 +149,9 @@ func (m *defaultUserTabModel) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 
-	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, data.Username)
 	testProjectUserTabIdKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabIdPrefix, id)
 	testProjectUserTabEmailKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabEmailPrefix, data.Email)
+	testProjectUserTabUsernameKey := fmt.Sprintf("%s%v", cacheTestProjectUserTabUsernamePrefix, data.Username)
 
 	keys := []string{testProjectUserTabIdKey, testProjectUserTabEmailKey, testProjectUserTabUsernameKey}
 	return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {

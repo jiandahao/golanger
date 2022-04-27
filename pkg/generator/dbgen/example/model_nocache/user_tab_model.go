@@ -7,7 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	dbutils "github.com/jiandahao/golanger/pkg/storage/db"
+	"github.com/jiandahao/golanger/pkg/storage/dbutils"
 	"gorm.io/gorm"
 )
 
