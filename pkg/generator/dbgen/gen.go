@@ -162,14 +162,11 @@ func initTemplates() {
 		{{else}}
 		err := m.dbConn.WithContext(ctx).Where("{{.originalPrimaryKey}} = ?", id).Limit(1).Take(&resp).Error
 		{{end}}
-		switch err {
-		case nil:
-			return &resp, nil
-		case gorm.ErrRecordNotFound:
-			return nil, nil
-		default:
+		if err != nil {
 			return nil, err
 		}
+
+		return &resp, nil
 	}`
 
 	template.FindOneByFieldMethod = `FindOneBy{{.upperField}}(ctx context.Context,{{.in}}) (*{{.upperStartCamelObject}}, error)`
@@ -184,14 +181,11 @@ func initTemplates() {
 		{{else}}
 		err := m.dbConn.Where("{{.originalField}}", {{.lowerStartCamelField}}).Limit(1).Take(&resp).Error
 		{{end}}
-		switch err {
-		case nil:
-			return &resp, nil
-		case gorm.ErrRecordNotFound:
-			return nil, nil
-		default:
+		if err != nil {
 			return nil, err
 		}
+
+		return &resp, nil
 	}`
 
 	template.Imports = `
