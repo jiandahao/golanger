@@ -37,7 +37,9 @@ func GenerateFromDDL(ddlFilePath string, moduleName string, outpDir string, with
 
 func initTemplates() {
 	template.Field = `{{.name}} {{.type}} {{.tag}} {{if .hasComment}}// {{.comment}}{{end}}`
-	template.Model = `package {{.pkg}}
+	template.Model = `// Code generated.
+	
+	package {{.pkg}}
 		{{.imports}}
 		{{.vars}}
 		{{.types}}
@@ -93,7 +95,7 @@ func initTemplates() {
 	// Insert insert one record into user_tab.
 	func (m *default{{.upperStartCamelObject}}Model) Insert(ctx context.Context, data *{{.upperStartCamelObject}}) error {
 		err := dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-			return tx.Create(&data).Error
+			return tx.WithContext(ctx).Create(&data).Error
 		})
 
 		if err != nil {
@@ -118,13 +120,13 @@ func initTemplates() {
 
 			keys := []string{ {{.keyValues}} }
 			return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-				return tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE {{.originalPrimaryKey}} = ? LIMIT 1", {{.upperStartCamelObject}}{}.TableName()), {{.lowerStartCamelPrimaryKey}}).Error
+				return tx.WithContext(ctx).Exec(fmt.Sprintf("DELETE FROM %s WHERE {{.originalPrimaryKey}} = ? LIMIT 1", {{.upperStartCamelObject}}{}.TableName()), {{.lowerStartCamelPrimaryKey}}).Error
 			}, func()  {
 				m.cachedConn.DelCache(keys...)
 			})
 		{{- else -}}
 		return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-			return tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE {{.originalPrimaryKey}} = ? LIMIT 1", {{.upperStartCamelObject}}{}.TableName()), {{.lowerStartCamelPrimaryKey}}).Error
+			return tx.WithContext(ctx).Exec(fmt.Sprintf("DELETE FROM %s WHERE {{.originalPrimaryKey}} = ? LIMIT 1", {{.upperStartCamelObject}}{}.TableName()), {{.lowerStartCamelPrimaryKey}}).Error
 		})
 		{{- end}}
 	}`
@@ -137,13 +139,13 @@ func initTemplates() {
 		keys := []string{ {{.keyValues}}}
 
 		return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-			return tx.Updates(data).Error
+			return tx.WithContext(ctx).Updates(data).Error
 		}, func()  {
 			 m.cachedConn.DelCache(keys...)
 		})
 		{{- else -}}
 		return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-			return tx.Updates(data).Error
+			return tx.WithContext(ctx).Updates(data).Error
 		})
 		{{- end}}
 	}`
@@ -155,19 +157,16 @@ func initTemplates() {
 		var resp {{.upperStartCamelObject}}
 		{{if .withCache}}{{.cacheKey}}
 		err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
-			return m.dbConn.Where("{{.originalPrimaryKey}}  = ?", id).Limit(1).Take(v).Error
+			return m.dbConn.WithContext(ctx).Where("{{.originalPrimaryKey}}  = ?", id).Limit(1).Take(v).Error
 		}, {{.cacheKeyVariable}})
 		{{else}}
-		err := m.dbConn.Where("{{.originalPrimaryKey}} = ?", id).Limit(1).Take(&resp).Error
+		err := m.dbConn.WithContext(ctx).Where("{{.originalPrimaryKey}} = ?", id).Limit(1).Take(&resp).Error
 		{{end}}
-		switch err {
-		case nil:
-			return &resp, nil
-		case gorm.ErrRecordNotFound:
-			return nil, nil
-		default:
+		if err != nil {
 			return nil, err
 		}
+
+		return &resp, nil
 	}`
 
 	template.FindOneByFieldMethod = `FindOneBy{{.upperField}}(ctx context.Context,{{.in}}) (*{{.upperStartCamelObject}}, error)`
@@ -177,19 +176,16 @@ func initTemplates() {
 		var resp {{.upperStartCamelObject}}
 		{{if .withCache}}{{.cacheKey}}
 		err := m.cachedConn.QueryRow(&resp, func(v interface{}) error {
-			return m.dbConn.Where("{{.originalField}}", {{.lowerStartCamelField}}).Limit(1).Take(v).Error
+			return m.dbConn.WithContext(ctx).Where("{{.originalField}}", {{.lowerStartCamelField}}).Limit(1).Take(v).Error
 		}, {{.cacheKeyVariable}})
 		{{else}}
 		err := m.dbConn.Where("{{.originalField}}", {{.lowerStartCamelField}}).Limit(1).Take(&resp).Error
 		{{end}}
-		switch err {
-		case nil:
-			return &resp, nil
-		case gorm.ErrRecordNotFound:
-			return nil, nil
-		default:
+		if err != nil {
 			return nil, err
 		}
+
+		return &resp, nil
 	}`
 
 	template.Imports = `
@@ -199,7 +195,7 @@ func initTemplates() {
 		"database/sql"
 	
 		"github.com/jiandahao/golanger/pkg/storage/cache"
-		dbutils "github.com/jiandahao/golanger/pkg/storage/db"
+		"github.com/jiandahao/golanger/pkg/storage/dbutils"
 		"gorm.io/gorm"
 	)
 	
@@ -212,7 +208,7 @@ func initTemplates() {
 		"fmt"
 		"database/sql"
 	
-		dbutils "github.com/jiandahao/golanger/pkg/storage/db"
+		"github.com/jiandahao/golanger/pkg/storage/dbutils"
 		"gorm.io/gorm"
 	)
 	var _ = sql.NullString{}

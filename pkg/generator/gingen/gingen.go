@@ -253,13 +253,14 @@ var serviceDecoratorTempl = `
 					}
 				}
 
-				resp, err := s.ss.{{$methodName}}(runtime.NewContext(ctx), &req)
+				newCtx := runtime.NewContext(ctx)
+				resp, err := s.ss.{{$methodName}}(newCtx, &req)
 				if err != nil {
 					runtime.HTTPError(ctx, err)
 					return
 				}
 		
-				runtime.ForwardResponseMessage(ctx, resp)	
+				runtime.ForwardResponseMessage(newCtx, resp)	
 			}
 		{{end}}
 	{{end}}
@@ -848,7 +849,7 @@ func (fi Field) String() string {
 	if fi.LeadingComments == "" {
 		return fmt.Sprintf("%s %s %s", fi.GoName, fi.GoType, fi.TagStr())
 	}
-	return fmt.Sprintf("%s\n%s %s %s", fi.LeadingComments, fi.GoName, fi.GoType, fi.TagStr())
+	return fmt.Sprintf("%s%s %s %s", fi.LeadingComments, fi.GoName, fi.GoType, fi.TagStr())
 }
 
 // Tag describes tag info for structure filed.

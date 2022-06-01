@@ -55,7 +55,16 @@ func defaultHTTPErrorHandler(ctx *gin.Context, err error) {
 }
 
 // forwardResponseMessage forwards the message "resp" from server to REST client.
-func forwardResponseMessage(ctx *gin.Context, resp interface{}) {
+func forwardResponseMessage(ctx *Context, resp interface{}) {
+	headers, ok := GetResponseHeader(ctx)
+	if ok {
+		for key, values := range headers {
+			for _, value := range values {
+				ctx.Writer.Header().Add(key, value)
+			}
+		}
+	}
+
 	ctx.JSON(http.StatusOK, responseData{
 		Code: codes.OK,
 		Msg:  "ok",
@@ -89,33 +98,103 @@ type responseData struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// runtimeContext represents a runtime context.
-type runtimeContext struct {
-	ginCtx *gin.Context
+// Context represents a runtime context
+type Context struct {
+	*gin.Context
 }
 
 // NewContext new context
-func NewContext(c *gin.Context) context.Context {
-	return &runtimeContext{ginCtx: c}
+func NewContext(c *gin.Context) *Context {
+	var header = http.Header{}
+	for key, values := range c.Request.Header {
+		for _, value := range values {
+			header.Add(key, value)
+		}
+	}
+
+	ctx := NewRequestHeaderContext(c.Request.Context(), header)
+	ctx = NewResponseHeaderContext(ctx, http.Header{})
+	ctx = context.WithValue(ctx, clientIPKey{}, c.ClientIP())
+
+	c.Request = c.Request.WithContext(ctx)
+
+	return &Context{Context: c}
 }
 
-func (c *runtimeContext) Deadline() (deadline time.Time, ok bool) {
-	return c.ginCtx.Request.Context().Deadline()
+func (c *Context) Deadline() (deadline time.Time, ok bool) {
+	return c.Request.Context().Deadline()
 }
 
-func (c *runtimeContext) Done() <-chan struct{} {
-	return c.ginCtx.Request.Context().Done()
+func (c *Context) Done() <-chan struct{} {
+	return c.Request.Context().Done()
 }
 
-func (c *runtimeContext) Err() error {
-	return c.ginCtx.Request.Context().Err()
+func (c *Context) Err() error {
+	return c.Request.Context().Err()
 }
 
-func (c *runtimeContext) Value(key interface{}) interface{} {
-	val := c.ginCtx.Value(key)
-	if val != nil {
+func (c *Context) Value(key interface{}) interface{} {
+	if val := c.Context.Value(key); val != nil {
 		return val
 	}
 
-	return c.ginCtx.Request.Context().Value(key)
+	return c.Request.Context().Value(key)
+}
+
+type requestHeaderKey struct{}
+type reponseHeaderKey struct{}
+
+// NewRequestHeaderContext creates a new context with request header attached.
+func NewRequestHeaderContext(ctx context.Context, header http.Header) context.Context {
+	return context.WithValue(ctx, requestHeaderKey{}, &header)
+}
+
+// NewResponseHeaderContext creates a new context with response header attached.
+func NewResponseHeaderContext(ctx context.Context, header http.Header) context.Context {
+	return context.WithValue(ctx, reponseHeaderKey{}, &header)
+}
+
+// SendResponseHeader add reponse header into the context.
+func SendResponseHeader(ctx context.Context, header http.Header) {
+	addHeaderIntoContext(ctx, reponseHeaderKey{}, header)
+}
+
+// GetResponseHeader returns response header attached in the context.
+func GetResponseHeader(ctx context.Context) (http.Header, bool) {
+	return getHeaderFromContext(ctx, reponseHeaderKey{})
+}
+
+// GetRequestHeader returns request header attached in the context.
+func GetRequestHeader(ctx context.Context) (http.Header, bool) {
+	return getHeaderFromContext(ctx, requestHeaderKey{})
+}
+
+func addHeaderIntoContext(ctx context.Context, key interface{}, header http.Header) {
+	ctxHeader, ok := ctx.Value(key).(*http.Header)
+	if !ok || ctxHeader == nil {
+		return
+	}
+
+	for key, values := range header {
+		for _, value := range values {
+			ctxHeader.Add(key, value)
+		}
+	}
+}
+
+func getHeaderFromContext(ctx context.Context, key interface{}) (http.Header, bool) {
+	header, ok := ctx.Value(reponseHeaderKey{}).(*http.Header)
+	if !ok || header == nil {
+		return nil, false
+	}
+
+	return *header, true
+}
+
+type clientIPKey struct{}
+
+// ClientIPFromContext returns the remote client ip in ctx if it exists.
+func ClientIPFromContext(ctx context.Context) (string, bool) {
+	clientIP, ok := ctx.Value(clientIPKey{}).(string)
+	return clientIP, ok
 }

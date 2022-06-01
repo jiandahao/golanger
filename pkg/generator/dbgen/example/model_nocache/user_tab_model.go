@@ -1,3 +1,5 @@
+// Code generated.
+
 package model_nocache
 
 import (
@@ -5,7 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	dbutils "github.com/jiandahao/golanger/pkg/storage/db"
+	"github.com/jiandahao/golanger/pkg/storage/dbutils"
 	"gorm.io/gorm"
 )
 
@@ -52,7 +54,7 @@ func NewUserTabModel(conn *gorm.DB) UserTabModel {
 // Insert insert one record into user_tab.
 func (m *defaultUserTabModel) Insert(ctx context.Context, data *UserTab) error {
 	err := dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-		return tx.Create(&data).Error
+		return tx.WithContext(ctx).Create(&data).Error
 	})
 
 	if err != nil {
@@ -66,7 +68,7 @@ func (m *defaultUserTabModel) Insert(ctx context.Context, data *UserTab) error {
 func (m *defaultUserTabModel) FindOne(ctx context.Context, id int64) (*UserTab, error) {
 	var resp UserTab
 
-	err := m.dbConn.Where("`id` = ?", id).Limit(1).Take(&resp).Error
+	err := m.dbConn.WithContext(ctx).Where("`id` = ?", id).Limit(1).Take(&resp).Error
 
 	switch err {
 	case nil:
@@ -113,13 +115,13 @@ func (m *defaultUserTabModel) FindOneByUsername(ctx context.Context, username st
 // Update update a record.
 func (m *defaultUserTabModel) Update(ctx context.Context, data *UserTab) error {
 	return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-		return tx.Updates(data).Error
+		return tx.WithContext(ctx).Updates(data).Error
 	})
 }
 
 // Delete deletes by primary key.
 func (m *defaultUserTabModel) Delete(ctx context.Context, id int64) error {
 	return dbutils.Transaction(ctx, m.dbConn, func(ctx context.Context, tx *gorm.DB) error {
-		return tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE `id` = ? LIMIT 1", UserTab{}.TableName()), id).Error
+		return tx.WithContext(ctx).Exec(fmt.Sprintf("DELETE FROM %s WHERE `id` = ? LIMIT 1", UserTab{}.TableName()), id).Error
 	})
 }

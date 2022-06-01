@@ -112,13 +112,14 @@ func (s defaultEchoDecorator) GetEcho(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.GetEcho(runtime.NewContext(ctx), &req)
+	newCtx := runtime.NewContext(ctx)
+	resp, err := s.ss.GetEcho(newCtx, &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
 	}
 
-	runtime.ForwardResponseMessage(ctx, resp)
+	runtime.ForwardResponseMessage(newCtx, resp)
 }
 func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 	var req GetEchoReq
@@ -136,13 +137,14 @@ func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.GetEcho(runtime.NewContext(ctx), &req)
+	newCtx := runtime.NewContext(ctx)
+	resp, err := s.ss.GetEcho(newCtx, &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
 	}
 
-	runtime.ForwardResponseMessage(ctx, resp)
+	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
 func (s defaultEchoDecorator) PostEcho(ctx *gin.Context) {
@@ -169,13 +171,14 @@ func (s defaultEchoDecorator) PostEcho(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.PostEcho(runtime.NewContext(ctx), &req)
+	newCtx := runtime.NewContext(ctx)
+	resp, err := s.ss.PostEcho(newCtx, &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
 	}
 
-	runtime.ForwardResponseMessage(ctx, resp)
+	runtime.ForwardResponseMessage(newCtx, resp)
 }
 func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 	var req PostEchoReq
@@ -202,13 +205,14 @@ func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.PostEcho(runtime.NewContext(ctx), &req)
+	newCtx := runtime.NewContext(ctx)
+	resp, err := s.ss.PostEcho(newCtx, &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
 	}
 
-	runtime.ForwardResponseMessage(ctx, resp)
+	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
 func (s defaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
@@ -233,13 +237,14 @@ func (s defaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
 		}
 	}
 
-	resp, err := s.ss.PostFormEcho(runtime.NewContext(ctx), &req)
+	newCtx := runtime.NewContext(ctx)
+	resp, err := s.ss.PostFormEcho(newCtx, &req)
 	if err != nil {
 		runtime.HTTPError(ctx, err)
 		return
 	}
 
-	runtime.ForwardResponseMessage(ctx, resp)
+	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
 // RegisterEchoServer registers the http handlers for service Echo to "router".
