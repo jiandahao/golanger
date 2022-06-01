@@ -1,6 +1,8 @@
 
 FROM golang:1.16 as go_builder
 
+ADD bin /go/bin
+
 # install goreportcard + all relative plugins
 RUN git clone --depth 1 https://github.com/gojp/goreportcard.git \
     && cd goreportcard \
@@ -24,7 +26,6 @@ ADD scripts/go_build.sh /usr/local/bin/go_build.sh
 
 # pprof relative
 RUN apt-get update && apt-get install graphviz graphviz-doc -y
-ADD bin/pprof_proxy /usr/local/bin/pprof_proxy
 
 # goreportcard relative
 COPY --from=go_builder /go/bin /go/bin

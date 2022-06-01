@@ -164,8 +164,8 @@ func (s *Service) P() {
 	s.f.P(s.genUnimplementedServer())
 	s.f.P(s.genServiceDecorator())
 	s.f.P(s.genServiceRegister())
-	s.f.P(s.genClientInterface())
-	s.f.P(s.genDefaultClient())
+	// s.f.P(s.genClientInterface())
+	// s.f.P(s.genDefaultClient())
 }
 
 var serviceInterfaceTempl = `
