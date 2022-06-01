@@ -849,7 +849,7 @@ func (fi Field) String() string {
 	if fi.LeadingComments == "" {
 		return fmt.Sprintf("%s %s %s", fi.GoName, fi.GoType, fi.TagStr())
 	}
-	return fmt.Sprintf("%s\n%s %s %s", fi.LeadingComments, fi.GoName, fi.GoType, fi.TagStr())
+	return fmt.Sprintf("%s%s %s %s", fi.LeadingComments, fi.GoName, fi.GoType, fi.TagStr())
 }
 
 // Tag describes tag info for structure filed.
