@@ -30,6 +30,11 @@ RUN apt-get update && apt-get install graphviz graphviz-doc -y
 # goreportcard relative
 COPY --from=go_builder /go/bin /go/bin
 
+RUN go get github.com/googleapis/googleapis \
+    && go get github.com/grpc-ecosystem/grpc-gateway \
+    && go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
+    && go install github.com/golang/mock/mockgen@v1.6.0
+    
 # setup mysql env
 COPY --from=mysql /usr/sbin/mysqld /usr/sbin/mysqld
 COPY --from=mysql /usr/bin/mysql* /usr/bin/
