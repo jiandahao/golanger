@@ -166,6 +166,7 @@ func (s *Service) P() {
 	s.f.P(s.genServiceRegister())
 	// s.f.P(s.genClientInterface())
 	// s.f.P(s.genDefaultClient())
+	s.f.P(s.genEndpointList())
 }
 
 var serviceInterfaceTempl = `
@@ -179,6 +180,22 @@ var serviceInterfaceTempl = `
 
 func (s *Service) genServiceInterface() string {
 	return executeTemplate("serviceInterfaceTempl", serviceInterfaceTempl, s)
+}
+
+var allEndpointsTempl = `
+	// All Endpoints 
+	var (
+		{{range .Methods}}
+			{{$methodName := .Name}}
+			{{- range $index, $rule := .HTTPRules}}
+			{{- if eq $index 0}}{{$methodName}}Endpoint{{else}}{{$methodName}}Endpoint_{{$index}}{{end}} = "{{$rule.Path}}"
+			{{- end }}
+		{{end}}
+	)
+`
+
+func (s *Service) genEndpointList() string {
+	return executeTemplate("serviceEndpointList", allEndpointsTempl, s)
 }
 
 var unimplementedServerTempl = `
@@ -199,7 +216,8 @@ func (s *Service) genUnimplementedServer() string {
 
 var serviceDecoratorTempl = `
 	{{$serviceName := .ServiceName}}
-	type default{{$serviceName}}Decorator struct{
+	// Default{{$serviceName}}Decorator the default decorator.
+	type Default{{$serviceName}}Decorator struct{
 		ss {{$serviceName}}Server
 	}
 
@@ -211,9 +229,9 @@ var serviceDecoratorTempl = `
 		{{$hasFile := .Request.HasFile}}
 		{{range $index, $rule := .HTTPRules}}
 			{{- if eq $index 0 -}}
-			func (s default{{$serviceName}}Decorator) {{$methodName}}(ctx *gin.Context){
+			func (s *Default{{$serviceName}}Decorator) {{$methodName}}(ctx *gin.Context){
 			{{- else -}}
-			func (s default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
+			func (s *Default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
 			{{- end -}}
 				var req {{$requestParamType}}
 				
@@ -274,7 +292,7 @@ var registerTempl = `
 	{{$serviceName := .ServiceName}}
 	// Register{{$serviceName}}Server registers the http handlers for service {{$serviceName}} to "router".
 	func Register{{$serviceName}}Server(router gin.IRouter, s {{$serviceName}}Server) {
-		d := default{{$serviceName}}Decorator{ss: s}
+		d := &Default{{$serviceName}}Decorator{ss: s}
 		{{- range .Methods -}}
 			{{ $methodName := .Name }}
 			{{- range $index, $rule := .HTTPRules}}
