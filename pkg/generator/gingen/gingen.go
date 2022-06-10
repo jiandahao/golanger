@@ -556,6 +556,7 @@ type Enum struct {
 type EnumValue struct {
 	LeadingComments string
 	TrailingComment string
+	ShortName       string // the short name of the declaration
 	GoIdent         string // name of the generated Go type
 	Type            string // Go type
 	Number          int32  // the enum value as an integer.
@@ -581,6 +582,7 @@ func NewEnum(f *protogen.GeneratedFile, enum *protogen.Enum) *Enum {
 			LeadingComments: leadingComments.String(),
 			TrailingComment: trailingComment(value.Comments.Trailing).String(),
 			GoIdent:         f.QualifiedGoIdent(value.GoIdent),
+			ShortName:       string(value.Desc.Name()),
 			Type:            f.QualifiedGoIdent(enum.GoIdent),
 			Number:          int32(value.Desc.Number()),
 		})
@@ -597,7 +599,26 @@ func (e Enum) P() {
 		{{.LeadingComments -}}
 		{{.GoIdent}} {{.Type}} = {{.Number}} {{.TrailingComment}}
 		{{- end}}
-	)`, e)
+	)
+	
+	var (
+		{{.GoIdent}}_name = map[int32]string{
+			{{- range .Values}}
+			{{.Number}}: "{{.ShortName}}",
+			{{- end}}
+		}
+
+		{{.GoIdent}}_value = map[string]int32{
+			{{- range .Values}}
+			"{{- .ShortName}}": {{.Number}},
+			{{- end}}
+		}
+	)
+
+	func (x {{.GoIdent}}) String() string {
+		return {{.GoIdent}}_name[int32(x)]
+	}
+	`, e)
 
 	e.f.P(res)
 }
