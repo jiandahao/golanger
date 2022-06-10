@@ -185,12 +185,12 @@ func (s *Service) genServiceInterface() string {
 var allEndpointsTempl = `
 	// All Endpoints 
 	var (
-		{{range .Methods}}
+		{{range .Methods -}}
 			{{$methodName := .Name}}
 			{{- range $index, $rule := .HTTPRules}}
 			{{- if eq $index 0}}{{$methodName}}Endpoint{{else}}{{$methodName}}Endpoint_{{$index}}{{end}} = "{{$rule.Path}}"
-			{{- end }}
-		{{end}}
+			{{ end }}
+		{{- end}}
 	)
 `
 
@@ -867,7 +867,7 @@ func (fi Field) String() string {
 	if fi.LeadingComments == "" {
 		return fmt.Sprintf("%s %s %s", fi.GoName, fi.GoType, fi.TagStr())
 	}
-	return fmt.Sprintf("%s%s %s %s", fi.LeadingComments, fi.GoName, fi.GoType, fi.TagStr())
+	return fmt.Sprintf("%s\n%s %s %s", fi.LeadingComments, fi.GoName, fi.GoType, fi.TagStr())
 }
 
 // Tag describes tag info for structure filed.
