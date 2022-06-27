@@ -221,6 +221,11 @@ var serviceDecoratorTempl = `
 		ss {{$serviceName}}Server
 	}
 
+	// NewDefault{{$serviceName}}Decorator constructs a new default {{$serviceName}} decorator
+	func NewDefault{{$serviceName}}Decorator(ss {{$serviceName}}Server) *Default{{$serviceName}}Decorator {
+		return &Default{{$serviceName}}Decorator{ss: ss}
+	}
+
 	{{range .Methods}}
 		{{$methodName := .Name}}
 		{{$requestParamType := .Request.GoName}}
@@ -614,6 +619,11 @@ func (e Enum) P() {
 			{{- end}}
 		}
 	)
+
+	func (x {{.GoIdent}}) IsValid() bool {
+		_, ok := {{.GoIdent}}_name[int32(x)]
+		return ok
+	}
 
 	func (x {{.GoIdent}}) String() string {
 		return {{.GoIdent}}_name[int32(x)]
