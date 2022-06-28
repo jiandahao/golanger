@@ -10,7 +10,9 @@ require (
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lestrrat-go/tcputil v0.0.0-20180223003554-d3c7f98154fb // indirect
 	github.com/lestrrat-go/test-mysqld v0.0.0-20190527004737-6c91be710371
+	github.com/pkg/errors v0.9.1
 	github.com/urfave/cli/v2 v2.3.0
+	github.com/zeromicro/ddl-parser v0.0.0-20210712021150-63520aca7348
 	github.com/zeromicro/go-zero v1.3.0
 	github.com/zeromicro/go-zero/tools/goctl v1.3.2
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
