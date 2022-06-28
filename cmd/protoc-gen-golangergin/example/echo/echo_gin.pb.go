@@ -93,11 +93,17 @@ func (s *UnimplementedEchoServer) PostFormEcho(context.Context, *PostFormEchoReq
 	return nil, status.Errorf(codes.Unimplemented, "method PostFormEcho not implemented")
 }
 
-type defaultEchoDecorator struct {
+// DefaultEchoDecorator the default decorator.
+type DefaultEchoDecorator struct {
 	ss EchoServer
 }
 
-func (s defaultEchoDecorator) GetEcho(ctx *gin.Context) {
+// NewDefaultEchoDecorator constructs a new default Echo decorator
+func NewDefaultEchoDecorator(ss EchoServer) *DefaultEchoDecorator {
+	return &DefaultEchoDecorator{ss: ss}
+}
+
+func (s *DefaultEchoDecorator) GetEcho(ctx *gin.Context) {
 	var req GetEchoReq
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -121,7 +127,7 @@ func (s defaultEchoDecorator) GetEcho(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
-func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
+func (s *DefaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 	var req GetEchoReq
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -147,7 +153,7 @@ func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultEchoDecorator) PostEcho(ctx *gin.Context) {
+func (s *DefaultEchoDecorator) PostEcho(ctx *gin.Context) {
 	var req PostEchoReq
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -180,7 +186,7 @@ func (s defaultEchoDecorator) PostEcho(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
-func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
+func (s *DefaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 	var req PostEchoReq
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -215,7 +221,7 @@ func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
+func (s *DefaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
 	var req PostFormEchoReq
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -249,7 +255,7 @@ func (s defaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
 
 // RegisterEchoServer registers the http handlers for service Echo to "router".
 func RegisterEchoServer(router gin.IRouter, s EchoServer) {
-	d := defaultEchoDecorator{ss: s}
+	d := &DefaultEchoDecorator{ss: s}
 	router.Handle("GET", "/api/v1/echo", d.GetEcho)
 	router.Handle("GET", "/api/v1/echo/:param_in_uri_or_query", d.GetEcho_1)
 	router.Handle("POST", "/api/v1/echo", d.PostEcho)
@@ -257,148 +263,11 @@ func RegisterEchoServer(router gin.IRouter, s EchoServer) {
 	router.Handle("POST", "/api/v1/form", d.PostFormEcho)
 }
 
-// EchoClient is the client API for for Echo service.
-type EchoClient interface {
-	GetEcho(context.Context, *GetEchoReq) (*GetEchoResp, error)
-	PostEcho(context.Context, *PostEchoReq) (*PostEchoResp, error)
-	PostFormEcho(context.Context, *PostFormEchoReq) (*PostFormEchoResp, error)
-}
-
-type defaultEchoClient struct {
-	cc   *http.Client
-	host string
-}
-
-// NewEchoClient creates a client API for Echo service.
-func NewEchoClient(host string, cc *http.Client) EchoClient {
-	return &defaultEchoClient{cc: cc, host: strings.TrimSuffix(host, "/")}
-}
-
-func (c *defaultEchoClient) GetEcho(ctx context.Context, req *GetEchoReq) (*GetEchoResp, error) {
-	endpoint := fmt.Sprintf("%s%s", c.host, "/api/v1/echo")
-
-	hreq, err := http.NewRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request with error: %s", err)
-	}
-
-	hreq.Header.Set("Content-Type", "application/json")
-
-	hreq.Header.Add("param_in_header_or_query", req.ParamInHeaderOrQuery)
-
-	var queries = url.Values{}
-	queries.Add("param_in_uri_or_query", req.ParamInUriOrQuery)
-	queries.Add("param_in_header_or_query", req.ParamInHeaderOrQuery)
-	hreq.URL.RawQuery = queries.Encode()
-
-	res, err := c.cc.Do(hreq)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	respBody, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var resp GetEchoResp
-	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
-		return nil, err
-	}
-
-	return &resp, nil
-}
-
-func (c *defaultEchoClient) PostEcho(ctx context.Context, req *PostEchoReq) (*PostEchoResp, error) {
-	endpoint := fmt.Sprintf("%s%s", c.host, "/api/v1/echo")
-
-	data, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
-	}
-
-	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request with error: %s", err)
-	}
-
-	hreq.Header.Set("Content-Type", "application/json")
-
-	hreq.Header.Add("param_in_header", req.ParamInHeader)
-
-	var queries = url.Values{}
-	queries.Add("param_in_uri_or_query", req.ParamInUriOrQuery)
-	hreq.URL.RawQuery = queries.Encode()
-
-	res, err := c.cc.Do(hreq)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	respBody, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var resp PostEchoResp
-	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
-		return nil, err
-	}
-
-	return &resp, nil
-}
-
-func (c *defaultEchoClient) PostFormEcho(ctx context.Context, req *PostFormEchoReq) (*PostFormEchoResp, error) {
-	endpoint := fmt.Sprintf("%s%s", c.host, "/api/v1/form")
-
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-
-	writer.WriteField("param_in_form_a", req.ParamInFormA)
-	writer.WriteField("param_in_form_b", req.ParamInFormB)
-
-	for filedName, files := range req.MultipartFiles {
-		for filename, reader := range files {
-			fw, err := writer.CreateFormFile(filedName, filename)
-			if err != nil {
-				return nil, err
-			}
-
-			_, err = io.Copy(fw, reader)
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	if err := writer.Close(); err != nil {
-		return nil, err
-	}
-
-	hreq, err := http.NewRequest("POST", endpoint, body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request with error: %s", err)
-	}
-
-	hreq.Header.Set("Content-Type", writer.FormDataContentType())
-
-	res, err := c.cc.Do(hreq)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	respBody, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var resp PostFormEchoResp
-	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
-		return nil, err
-	}
-
-	return &resp, nil
-}
+// All Endpoints
+var (
+	GetEchoEndpoint      = "/api/v1/echo"
+	GetEchoEndpoint_1    = "/api/v1/echo/:param_in_uri_or_query"
+	PostEchoEndpoint     = "/api/v1/echo"
+	PostEchoEndpoint_1   = "/api/v1/echo/:param_in_uri_or_query"
+	PostFormEchoEndpoint = "/api/v1/form"
+)
