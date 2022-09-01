@@ -412,13 +412,13 @@ var defaultClientTempl = `
 			{{end}}
 
 			{{- range $header}}
-				{{$tag := .TagByName "header"}} hreq.Header.Add("{{$tag.Value}}", req.{{.GoName}})
+				{{$tag := .TagByName "header"}} hreq.Header.Add("{{$tag.Value}}", fmt.Sprint(req.{{.GoName}}))
 			{{- end}}
 
 			{{if $query -}}
 				var queries = url.Values{}
 				{{- range $query }}
-					{{$tag := .TagByName "query"}} queries.Add("{{$tag.Value}}", req.{{.GoName}})
+					{{$tag := .TagByName "query"}} queries.Add("{{$tag.Value}}", fmt.Sprint(req.{{.GoName}}))
 				{{- end}}
 				hreq.URL.RawQuery = queries.Encode()
 			{{end}}
