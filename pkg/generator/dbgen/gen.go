@@ -229,7 +229,7 @@ func (m *default{{$tableCamelName}}Model) WithDB(dbConn *gorm.DB) {{$tableCamelN
 	}
 }
 
-// Insert insert one record into user_tab.
+// Insert insert one record.
 func (m *default{{$tableCamelName}}Model) Insert(ctx context.Context, data *{{$tableCamelName}}) error {
 	err := m.dbConn.WithContext(ctx).Create(data).Error
 	if err != nil {
@@ -273,7 +273,7 @@ func (m *default{{$tableCamelName}}Model) FindOne(ctx context.Context, {{.Primar
 {{$indexField := index $value 0}}
 // FindOneBy{{$indexField.Name.ToCamel}} find one record by unique key {{$indexField.NameOriginal}}.
 func (m *default{{$tableCamelName}}Model) FindOneBy{{$indexField.Name.ToCamel}}(ctx context.Context, {{$indexField.NameOriginal}} {{$indexField.DataType}}) (*{{$tableCamelName}}, error) {
-	var resp UserTab
+	var resp {{$tableCamelName}}
 	err := m.dbConn.WithContext(ctx).Where("` + "`{{$indexField.NameOriginal}}`" + `  = ?", {{$indexField.NameOriginal}}).Limit(1).Take(&resp).Error
 	if err != nil {
 		return nil, errors.Wrap(err, "FindOneBy{{$indexField.Name.ToCamel}} error")
