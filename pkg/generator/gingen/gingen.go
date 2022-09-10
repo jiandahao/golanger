@@ -1,6 +1,7 @@
 package gingen
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,9 +13,34 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
+type Generator struct{}
+
+func (g *Generator) Run() {
+	var flags flag.FlagSet
+	withClient := flags.Bool("withclient", false, "whether to generate client for service")
+
+	options := protogen.Options{
+		ParamFunc: func(name, value string) error {
+			return flags.Set(name, value)
+		},
+	}
+
+	options.Run(func(gen *protogen.Plugin) error {
+		gen.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
+
+		plugin := &ProtocPlugin{
+			gen:        gen,
+			withClient: *withClient,
+		}
+
+		return plugin.Execute()
+	})
+}
+
 // ProtocPlugin is a plugin used to generate service implementation
 type ProtocPlugin struct {
-	gen *protogen.Plugin
+	gen        *protogen.Plugin
+	withClient bool
 }
 
 // NewProtocPlugin new protoc plugin
@@ -96,7 +122,7 @@ func (p *ProtocPlugin) GenerateFile(file *FileInfo) {
 	}
 
 	for _, service := range file.AllService {
-		s := NewService(generatedFile, service)
+		s := NewService(generatedFile, service, p.withClient)
 		s.P()
 	}
 }
@@ -104,7 +130,6 @@ func (p *ProtocPlugin) GenerateFile(file *FileInfo) {
 // FileInfo file info
 type FileInfo struct {
 	*protogen.File
-	f           *protogen.GeneratedFile
 	AllMessages []*protogen.Message
 	AllEnums    []*protogen.Enum
 	AllService  []*protogen.Service
@@ -141,14 +166,17 @@ type Service struct {
 	Methods         []*Method
 
 	f *protogen.GeneratedFile
+
+	generateClient bool
 }
 
 // NewService parses protogen.Service and returns it as Service.
-func NewService(f *protogen.GeneratedFile, service *protogen.Service) *Service {
+func NewService(f *protogen.GeneratedFile, service *protogen.Service, withClient bool) *Service {
 	s := &Service{
 		ServiceName:     service.GoName,
 		LeadingComments: string(appendDeprecationSuffix(service.Comments.Leading, service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated())),
 		f:               f,
+		generateClient:  withClient,
 	}
 
 	for _, m := range service.Methods {
@@ -164,8 +192,10 @@ func (s *Service) P() {
 	s.f.P(s.genUnimplementedServer())
 	s.f.P(s.genServiceDecorator())
 	s.f.P(s.genServiceRegister())
-	// s.f.P(s.genClientInterface())
-	// s.f.P(s.genDefaultClient())
+	if s.generateClient {
+		s.f.P(s.genClientInterface())
+		s.f.P(s.genDefaultClient())
+	}
 	s.f.P(s.genEndpointList())
 }
 
@@ -200,6 +230,7 @@ func (s *Service) genEndpointList() string {
 
 var unimplementedServerTempl = `
 	{{$serviceName := .ServiceName}}
+	var _ {{$serviceName}}Server = &Unimplemented{{$serviceName}}Server{}
 	// Unimplemented{{$serviceName}}Server can be embedded to have forward compatible implementations.
 	type Unimplemented{{$serviceName}}Server struct {}
 
@@ -235,7 +266,7 @@ var serviceDecoratorTempl = `
 		{{range $index, $rule := .HTTPRules}}
 			{{- if eq $index 0 -}}
 			func (s *Default{{$serviceName}}Decorator) {{$methodName}}(ctx *gin.Context){
-			{{- else -}}
+			{{- else }}
 			func (s *Default{{$serviceName}}Decorator) {{$methodName}}_{{$index}}(ctx *gin.Context){
 			{{- end -}}
 				var req {{$requestParamType}}
@@ -315,8 +346,10 @@ var clientInterfaceTempl = `
 	// {{.ServiceName}}Client is the client API for for {{.ServiceName}} service.
 	type {{.ServiceName}}Client interface {
 	{{- range .Methods}}
-		{{.Comments -}}
-		{{.Name}}(context.Context, *{{.Request.GoName}}) (*{{.Response.GoName}}, error)
+		{{ if .HasHTTPRules -}}
+			{{.Comments -}}
+			{{.Name}}(context.Context, *{{.Request.GoName}}) (*{{.Response.GoName}}, error)
+		{{- end -}}
 	{{- end}}}
 `
 
@@ -337,110 +370,113 @@ var defaultClientTempl = `
 	}
 	
 	{{range .Methods}}
-		{{$methodName := .Name}}
-		{{$requestParamType := .Request.GoName}}
-		{{$rule := index .HTTPRules 0}}
-		{{$header := .Request.FieldWithTag "header"}}
-		{{$body := .Request.FieldWithTag "json"}}
-		{{$query := .Request.FieldWithTag "query"}}
-		{{$hasFiles := .Request.HasFile}}
-		{{$hasForm := .Request.HasFormParam}}
-		{{$formField := .Request.FieldWithTag "form"}}
-		{{$request := .Request}}
-		func (c *default{{$serviceName}}Client) {{$methodName}} (ctx context.Context, req *{{.Request.GoName}}) (*{{.Response.GoName}}, error) {
-			endpoint := fmt.Sprintf("%s%s", c.host, "{{$rule.Path}}")
-			{{- range $key, $value := $rule.PathParams}}
-				endpoint = strings.ReplaceAll(endpoint, ":{{$key}}", fmt.Sprint(req.{{$value}}))
-			{{- end}}
+		{{ $length := len .HTTPRules }} 
+		{{ if .HasHTTPRules }}
+			{{$methodName := .Name}}
+			{{$requestParamType := .Request.GoName}}
+			{{$rule := index .HTTPRules 0}}
+			{{$header := .Request.FieldWithTag "header"}}
+			{{$body := .Request.FieldWithTag "json"}}
+			{{$query := .Request.FieldWithTag "query"}}
+			{{$hasFiles := .Request.HasFile}}
+			{{$hasForm := .Request.HasFormParam}}
+			{{$formField := .Request.FieldWithTag "form"}}
+			{{$request := .Request}}
+			func (c *default{{$serviceName}}Client) {{$methodName}} (ctx context.Context, req *{{.Request.GoName}}) (*{{.Response.GoName}}, error) {
+				endpoint := fmt.Sprintf("%s%s", c.host, "{{$rule.Path}}")
+				{{- range $key, $value := $rule.PathParams}}
+					endpoint = strings.ReplaceAll(endpoint, ":{{$key}}", fmt.Sprint(req.{{$value}}))
+				{{- end}}
 
-			{{if eq $rule.Method "GET" "DELETE" }}
-				hreq , err := http.NewRequest("{{$rule.Method}}", endpoint, nil)
-				if err != nil {
-					return nil, fmt.Errorf("failed to create request with error: %s", err)
-				}
-			{{- else}}
-				{{ if or $hasFiles $hasForm }}
-					body := &bytes.Buffer{}
-					writer := multipart.NewWriter(body)
-					{{if $hasForm }}
-						{{range $formField }}
-						{{$tag := .TagByName "form"}} writer.WriteField("{{$tag.Value}}", req.{{.GoName}})
-						{{- end -}}
-					{{end}}
+				{{if eq $rule.Method "GET" "DELETE" }}
+					hreq , err := http.NewRequest("{{$rule.Method}}", endpoint, nil)
+					if err != nil {
+						return nil, fmt.Errorf("failed to create request with error: %s", err)
+					}
+				{{- else}}
+					{{ if or $hasFiles $hasForm }}
+						body := &bytes.Buffer{}
+						writer := multipart.NewWriter(body)
+						{{if $hasForm }}
+							{{range $formField }}
+							{{$tag := .TagByName "form"}} writer.WriteField("{{$tag.Value}}", req.{{.GoName}})
+							{{- end -}}
+						{{end}}
 
-					{{if $hasFiles}}
-					for filedName, files := range req.MultipartFiles {
-						for filename, reader := range files {
-							fw, err := writer.CreateFormFile(filedName, filename)
-							if err != nil {
-								return nil, err
-							}
+						{{if $hasFiles}}
+						for filedName, files := range req.MultipartFiles {
+							for filename, reader := range files {
+								fw, err := writer.CreateFormFile(filedName, filename)
+								if err != nil {
+									return nil, err
+								}
 
-							_, err = io.Copy(fw, reader)
-							if err != nil {
-								return nil, err
+								_, err = io.Copy(fw, reader)
+								if err != nil {
+									return nil, err
+								}
 							}
 						}
-					}
-					{{end}}
-					if err := writer.Close(); err != nil {
-						return nil, err
-					}
+						{{end}}
+						if err := writer.Close(); err != nil {
+							return nil, err
+						}
 
-					hreq, err := http.NewRequest("{{$rule.Method}}", endpoint, body)	
-					if err != nil {
-						return nil, fmt.Errorf("failed to create request with error: %s", err)
-					}
-				{{else}}
-					data, err := json.Marshal(req)
-					if err != nil {
-						return nil, fmt.Errorf("failed to marshal request with error: %s", err)
-					}
-					
-					hreq, err := http.NewRequest("{{$rule.Method}}", endpoint, bytes.NewBuffer(data))	
-					if err != nil {
-						return nil, fmt.Errorf("failed to create request with error: %s", err)
-					}	
-				{{end}}		
+						hreq, err := http.NewRequest("{{$rule.Method}}", endpoint, body)	
+						if err != nil {
+							return nil, fmt.Errorf("failed to create request with error: %s", err)
+						}
+					{{else}}
+						data, err := json.Marshal(req)
+						if err != nil {
+							return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+						}
+						
+						hreq, err := http.NewRequest("{{$rule.Method}}", endpoint, bytes.NewBuffer(data))	
+						if err != nil {
+							return nil, fmt.Errorf("failed to create request with error: %s", err)
+						}	
+					{{end}}		
 
-			{{- end}}
-
-			{{if or $hasFiles $hasForm }}
-			hreq.Header.Set("Content-Type", writer.FormDataContentType())
-			{{else}}
-			hreq.Header.Set("Content-Type", "application/json")
-			{{end}}
-
-			{{- range $header}}
-				{{$tag := .TagByName "header"}} hreq.Header.Add("{{$tag.Value}}", fmt.Sprint(req.{{.GoName}}))
-			{{- end}}
-
-			{{if $query -}}
-				var queries = url.Values{}
-				{{- range $query }}
-					{{$tag := .TagByName "query"}} queries.Add("{{$tag.Value}}", fmt.Sprint(req.{{.GoName}}))
 				{{- end}}
-				hreq.URL.RawQuery = queries.Encode()
-			{{end}}
 
-			res, err := c.cc.Do(hreq)
-			if err != nil {
-				return nil, err
+				{{if or $hasFiles $hasForm }}
+				hreq.Header.Set("Content-Type", writer.FormDataContentType())
+				{{else}}
+				hreq.Header.Set("Content-Type", "application/json")
+				{{end}}
+
+				{{- range $header}}
+					{{$tag := .TagByName "header"}} hreq.Header.Add("{{$tag.Value}}", fmt.Sprint(req.{{.GoName}}))
+				{{- end}}
+
+				{{if $query -}}
+					var queries = url.Values{}
+					{{- range $query }}
+						{{$tag := .TagByName "query"}} queries.Add("{{$tag.Value}}", fmt.Sprint(req.{{.GoName}}))
+					{{- end}}
+					hreq.URL.RawQuery = queries.Encode()
+				{{end}}
+
+				res, err := c.cc.Do(hreq)
+				if err != nil {
+					return nil, err
+				}
+				defer res.Body.Close()
+
+				respBody, err := ioutil.ReadAll(res.Body)
+				if err != nil {
+					return nil, err
+				}
+
+				var resp {{.Response.GoName}}
+				if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+					return nil, err
+				}
+
+				return &resp, nil
 			}
-			defer res.Body.Close()
-
-			respBody, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				return nil, err
-			}
-
-			var resp {{.Response.GoName}}
-			if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
-				return nil, err
-			}
-
-			return &resp, nil
-		}
+		{{end}}
 	{{end}}
 `
 
@@ -458,19 +494,19 @@ type Method struct {
 }
 
 func newMethod(f *protogen.GeneratedFile, m *protogen.Method) *Method {
+	request := NewMessage(f, m.Input)
+	response := NewMessage(f, m.Output)
+
+	method := &Method{
+		Name:     m.GoName,
+		Request:  request,  //f.QualifiedGoIdent(m.Input.GoIdent),
+		Response: response, //f.QualifiedGoIdent(m.Output.GoIdent),
+		Comments: m.Comments.Leading.String(),
+	}
+
 	// try to parse http rules
 	rule, ok := proto.GetExtension(m.Desc.Options(), annotations.E_Http).(*annotations.HttpRule)
 	if rule != nil && ok {
-		request := NewMessage(f, m.Input)
-		response := NewMessage(f, m.Output)
-
-		method := &Method{
-			Name:     m.GoName,
-			Request:  request,  //f.QualifiedGoIdent(m.Input.GoIdent),
-			Response: response, //f.QualifiedGoIdent(m.Output.GoIdent),
-			Comments: m.Comments.Leading.String(),
-		}
-
 		method.HTTPRules = append(method.HTTPRules, extractHTTPRule(rule))
 		for _, bind := range rule.AdditionalBindings {
 			method.HTTPRules = append(method.HTTPRules, extractHTTPRule(bind))
@@ -484,11 +520,12 @@ func newMethod(f *protogen.GeneratedFile, m *protogen.Method) *Method {
 				}
 			}
 		}
-
-		return method
 	}
+	return method
+}
 
-	panic(fmt.Sprintf("no http rules found for method: %s", m.GoName))
+func (m Method) HasHTTPRules() bool {
+	return len(m.HTTPRules) > 0
 }
 
 // HasPathParam returns true if there is at least one http rule contains path param.

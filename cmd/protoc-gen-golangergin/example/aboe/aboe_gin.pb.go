@@ -391,6 +391,8 @@ type ABitOfEverythingServiceServer interface {
 	CheckStatus(context.Context, *emptypb.Empty) (*CheckStatusResponse, error)
 }
 
+var _ ABitOfEverythingServiceServer = &UnimplementedABitOfEverythingServiceServer{}
+
 // UnimplementedABitOfEverythingServiceServer can be embedded to have forward compatible implementations.
 type UnimplementedABitOfEverythingServiceServer struct{}
 
@@ -714,6 +716,7 @@ func (s *DefaultABitOfEverythingServiceDecorator) UpdateV2(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
+
 func (s *DefaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 	var req UpdateV2Request
 	shouldBindPayload := func(obj interface{}) error {
@@ -746,6 +749,7 @@ func (s *DefaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
+
 func (s *DefaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 	var req UpdateV2Request
 	shouldBindPayload := func(obj interface{}) error {
@@ -874,6 +878,7 @@ func (s *DefaultABitOfEverythingServiceDecorator) Echo(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
+
 func (s *DefaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 	var req StringMessage
 	shouldBindPayload := func(obj interface{}) error {
@@ -905,6 +910,7 @@ func (s *DefaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
+
 func (s *DefaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 	var req StringMessage
 
@@ -1271,6 +1277,818 @@ func RegisterABitOfEverythingServiceServer(router gin.IRouter, s ABitOfEverythin
 	router.Handle("GET", "/v1/example/checkStatus", d.CheckStatus)
 }
 
+// ABitOfEverythingServiceClient is the client API for for ABitOfEverythingService service.
+type ABitOfEverythingServiceClient interface {
+	// Create a new ABitOfEverything
+	//
+	// This API creates a new ABitOfEverything
+	Create(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	CreateBody(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	// Create a book.
+	CreateBook(context.Context, *CreateBookRequest) (*Book, error)
+	UpdateBook(context.Context, *UpdateBookRequest) (*Book, error)
+	Lookup(context.Context, *IdMessage) (*ABitOfEverything, error)
+	Update(context.Context, *ABitOfEverything) (*emptypb.Empty, error)
+	UpdateV2(context.Context, *UpdateV2Request) (*emptypb.Empty, error)
+	Delete(context.Context, *IdMessage) (*emptypb.Empty, error)
+	GetQuery(context.Context, *ABitOfEverything) (*emptypb.Empty, error)
+	GetRepeatedQuery(context.Context, *ABitOfEverythingRepeated) (*ABitOfEverythingRepeated, error)
+	// Echo allows posting a StringMessage value.
+	//
+	// It also exposes multiple bindings.
+	//
+	// This makes it useful when validating that the OpenAPI v2 API
+	// description exposes documentation correctly on all paths
+	// defined as additional_bindings in the proto.
+	Echo(context.Context, *StringMessage) (*StringMessage, error)
+	DeepPathEcho(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	// rpc NoBindings(google.protobuf.Duration) returns (google.protobuf.Empty) {}
+	Timeout(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	ErrorWithDetails(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	GetMessageWithBody(context.Context, *MessageWithBody) (*emptypb.Empty, error)
+	PostWithEmptyBody(context.Context, *Body) (*emptypb.Empty, error)
+	CheckGetQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	CheckNestedEnumGetQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	CheckPostQueryParams(context.Context, *ABitOfEverything) (*ABitOfEverything, error)
+	OverwriteResponseContentType(context.Context, *emptypb.Empty) (*StringValue, error)
+	CheckExternalPathEnum(context.Context, *MessageWithPathEnum) (*emptypb.Empty, error)
+	CheckExternalNestedPathEnum(context.Context, *MessageWithNestedPathEnum) (*emptypb.Empty, error)
+	CheckStatus(context.Context, *emptypb.Empty) (*CheckStatusResponse, error)
+}
+
+type defaultABitOfEverythingServiceClient struct {
+	cc   *http.Client
+	host string
+}
+
+// NewABitOfEverythingServiceClient creates a client API for ABitOfEverythingService service.
+func NewABitOfEverythingServiceClient(host string, cc *http.Client) ABitOfEverythingServiceClient {
+	return &defaultABitOfEverythingServiceClient{cc: cc, host: strings.TrimSuffix(host, "/")}
+}
+
+func (c *defaultABitOfEverythingServiceClient) Create(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/:float_value/:double_value/:int64_value/separator/:uint64_value/:int32_value/:fixed64_value/:fixed32_value/:bool_value/{string_value=strprefix/*}/:uint32_value/:sfixed32_value/:sfixed64_value/:sint32_value/:sint64_value/:nonConventionalNameValue/:enum_value/:path_enum_value/:nested_path_enum_value/:enum_value_annotation")
+	endpoint = strings.ReplaceAll(endpoint, ":bool_value", fmt.Sprint(req.BoolValue))
+	endpoint = strings.ReplaceAll(endpoint, ":double_value", fmt.Sprint(req.DoubleValue))
+	endpoint = strings.ReplaceAll(endpoint, ":enum_value", fmt.Sprint(req.EnumValue))
+	endpoint = strings.ReplaceAll(endpoint, ":enum_value_annotation", fmt.Sprint(req.EnumValueAnnotation))
+	endpoint = strings.ReplaceAll(endpoint, ":fixed32_value", fmt.Sprint(req.Fixed32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":fixed64_value", fmt.Sprint(req.Fixed64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":float_value", fmt.Sprint(req.FloatValue))
+	endpoint = strings.ReplaceAll(endpoint, ":int32_value", fmt.Sprint(req.Int32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":int64_value", fmt.Sprint(req.Int64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":nested_path_enum_value", fmt.Sprint(req.NestedPathEnumValue))
+	endpoint = strings.ReplaceAll(endpoint, ":nonConventionalNameValue", fmt.Sprint(req.NonConventionalNameValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_enum_value", fmt.Sprint(req.PathEnumValue))
+	endpoint = strings.ReplaceAll(endpoint, ":sfixed32_value", fmt.Sprint(req.Sfixed32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":sfixed64_value", fmt.Sprint(req.Sfixed64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":sint32_value", fmt.Sprint(req.Sint32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":sint64_value", fmt.Sprint(req.Sint64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":uint32_value", fmt.Sprint(req.Uint32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":uint64_value", fmt.Sprint(req.Uint64Value))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CreateBody(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything")
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CreateBook(ctx context.Context, req *CreateBookRequest) (*Book, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/{parent=publishers/*}/books")
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp Book
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) UpdateBook(ctx context.Context, req *UpdateBookRequest) (*Book, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/{book.name=publishers/*/books/*}")
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("PATCH", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp Book
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Lookup(ctx context.Context, req *IdMessage) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/:uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":uuid", fmt.Sprint(req.Uuid))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Update(ctx context.Context, req *ABitOfEverything) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/:uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":uuid", fmt.Sprint(req.Uuid))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("PUT", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) UpdateV2(ctx context.Context, req *UpdateV2Request) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/a_bit_of_everything/:abe.uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":abe.uuid", fmt.Sprint(req.Abe.Uuid))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("PUT", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Delete(ctx context.Context, req *IdMessage) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/:uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":uuid", fmt.Sprint(req.Uuid))
+
+	hreq, err := http.NewRequest("DELETE", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) GetQuery(ctx context.Context, req *ABitOfEverything) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/query/:uuid")
+	endpoint = strings.ReplaceAll(endpoint, ":uuid", fmt.Sprint(req.Uuid))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) GetRepeatedQuery(ctx context.Context, req *ABitOfEverythingRepeated) (*ABitOfEverythingRepeated, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything_repeated/:path_repeated_float_value/:path_repeated_double_value/:path_repeated_int64_value/:path_repeated_uint64_value/:path_repeated_int32_value/:path_repeated_fixed64_value/:path_repeated_fixed32_value/:path_repeated_bool_value/:path_repeated_string_value/:path_repeated_bytes_value/:path_repeated_uint32_value/:path_repeated_enum_value/:path_repeated_sfixed32_value/:path_repeated_sfixed64_value/:path_repeated_sint32_value/:path_repeated_sint64_value")
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_bool_value", fmt.Sprint(req.PathRepeatedBoolValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_bytes_value", fmt.Sprint(req.PathRepeatedBytesValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_double_value", fmt.Sprint(req.PathRepeatedDoubleValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_enum_value", fmt.Sprint(req.PathRepeatedEnumValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_fixed32_value", fmt.Sprint(req.PathRepeatedFixed32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_fixed64_value", fmt.Sprint(req.PathRepeatedFixed64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_float_value", fmt.Sprint(req.PathRepeatedFloatValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_int32_value", fmt.Sprint(req.PathRepeatedInt32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_int64_value", fmt.Sprint(req.PathRepeatedInt64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_sfixed32_value", fmt.Sprint(req.PathRepeatedSfixed32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_sfixed64_value", fmt.Sprint(req.PathRepeatedSfixed64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_sint32_value", fmt.Sprint(req.PathRepeatedSint32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_sint64_value", fmt.Sprint(req.PathRepeatedSint64Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_string_value", fmt.Sprint(req.PathRepeatedStringValue))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_uint32_value", fmt.Sprint(req.PathRepeatedUint32Value))
+	endpoint = strings.ReplaceAll(endpoint, ":path_repeated_uint64_value", fmt.Sprint(req.PathRepeatedUint64Value))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverythingRepeated
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Echo(ctx context.Context, req *StringMessage) (*StringMessage, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/echo/:value")
+	endpoint = strings.ReplaceAll(endpoint, ":value", fmt.Sprint(req.Value))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp StringMessage
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) DeepPathEcho(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/deep_path/:single_nested.name")
+	endpoint = strings.ReplaceAll(endpoint, ":single_nested.name", fmt.Sprint(req.SingleNested.Name))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) Timeout(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/timeout")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) ErrorWithDetails(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/errorwithdetails")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) GetMessageWithBody(ctx context.Context, req *MessageWithBody) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/withbody/:id")
+	endpoint = strings.ReplaceAll(endpoint, ":id", fmt.Sprint(req.Id))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) PostWithEmptyBody(ctx context.Context, req *Body) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/postwithemptybody/:name")
+	endpoint = strings.ReplaceAll(endpoint, ":name", fmt.Sprint(req.Name))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckGetQueryParams(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/params/get/:single_nested.name")
+	endpoint = strings.ReplaceAll(endpoint, ":single_nested.name", fmt.Sprint(req.SingleNested.Name))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckNestedEnumGetQueryParams(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/params/get/nested_enum/:single_nested.ok")
+	endpoint = strings.ReplaceAll(endpoint, ":single_nested.ok", fmt.Sprint(req.SingleNested.Ok))
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckPostQueryParams(ctx context.Context, req *ABitOfEverything) (*ABitOfEverything, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/a_bit_of_everything/params/post/:string_value")
+	endpoint = strings.ReplaceAll(endpoint, ":string_value", fmt.Sprint(req.StringValue))
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request with error: %s", err)
+	}
+
+	hreq, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ABitOfEverything
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) OverwriteResponseContentType(ctx context.Context, req *emptypb.Empty) (*StringValue, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/overwriteresponsecontenttype")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp StringValue
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckExternalPathEnum(ctx context.Context, req *MessageWithPathEnum) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/{value}:check")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckExternalNestedPathEnum(ctx context.Context, req *MessageWithNestedPathEnum) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v3/{value}:check")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *defaultABitOfEverythingServiceClient) CheckStatus(ctx context.Context, req *emptypb.Empty) (*CheckStatusResponse, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v1/example/checkStatus")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp CheckStatusResponse
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
 // All Endpoints
 var (
 	CreateEndpoint                        = "/v1/example/a_bit_of_everything/:float_value/:double_value/:int64_value/separator/:uint64_value/:int32_value/:fixed64_value/:fixed32_value/:bool_value/{string_value=strprefix/*}/:uint32_value/:sfixed32_value/:sfixed64_value/:sint32_value/:sint64_value/:nonConventionalNameValue/:enum_value/:path_enum_value/:nested_path_enum_value/:enum_value_annotation"
@@ -1306,6 +2124,8 @@ var (
 type CamelCaseServiceNameServer interface {
 	Empty(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 }
+
+var _ CamelCaseServiceNameServer = &UnimplementedCamelCaseServiceNameServer{}
 
 // UnimplementedCamelCaseServiceNameServer can be embedded to have forward compatible implementations.
 type UnimplementedCamelCaseServiceNameServer struct{}
@@ -1350,6 +2170,50 @@ func (s *DefaultCamelCaseServiceNameDecorator) Empty(ctx *gin.Context) {
 func RegisterCamelCaseServiceNameServer(router gin.IRouter, s CamelCaseServiceNameServer) {
 	d := &DefaultCamelCaseServiceNameDecorator{ss: s}
 	router.Handle("GET", "/v2/example/empty", d.Empty)
+}
+
+// CamelCaseServiceNameClient is the client API for for CamelCaseServiceName service.
+type CamelCaseServiceNameClient interface {
+	Empty(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+}
+
+type defaultCamelCaseServiceNameClient struct {
+	cc   *http.Client
+	host string
+}
+
+// NewCamelCaseServiceNameClient creates a client API for CamelCaseServiceName service.
+func NewCamelCaseServiceNameClient(host string, cc *http.Client) CamelCaseServiceNameClient {
+	return &defaultCamelCaseServiceNameClient{cc: cc, host: strings.TrimSuffix(host, "/")}
+}
+
+func (c *defaultCamelCaseServiceNameClient) Empty(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	endpoint := fmt.Sprintf("%s%s", c.host, "/v2/example/empty")
+
+	hreq, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request with error: %s", err)
+	}
+
+	hreq.Header.Set("Content-Type", "application/json")
+
+	res, err := c.cc.Do(hreq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp emptypb.Empty
+	if err := runtime.BackwardResponseMessage(respBody, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
 }
 
 // All Endpoints
