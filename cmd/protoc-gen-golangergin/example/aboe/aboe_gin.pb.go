@@ -75,36 +75,27 @@ type ABitOfEverything struct {
 	NonConventionalNameValue string                              `json:"nonConventionalNameValue,omitempty"`
 	TimestampValue           *timestamppb.Timestamp              `json:"timestamp_value,omitempty"`
 	// repeated enum value. it is comma-separated in query
-
 	RepeatedEnumValue []NumericEnum `json:"repeated_enum_value,omitempty"`
 	// repeated numeric enum comment (This comment is overridden by the field annotation)
-
 	RepeatedEnumAnnotation []NumericEnum `json:"repeated_enum_annotation,omitempty"`
 	// numeric enum comment (This comment is overridden by the field annotation)
-
 	EnumValueAnnotation NumericEnum `json:"enum_value_annotation,omitempty"`
 	// repeated string comment (This comment is overridden by the field annotation)
-
 	RepeatedStringAnnotation []string `json:"repeated_string_annotation,omitempty"`
 	// repeated nested object comment (This comment is overridden by the field annotation)
-
 	RepeatedNestedAnnotation []*ABitOfEverything_Nested `json:"repeated_nested_annotation,omitempty"`
 	// nested object comments (This comment is overridden by the field annotation)
-
 	NestedAnnotation  *ABitOfEverything_Nested `json:"nested_annotation,omitempty"`
 	Int64OverrideType int64                    `json:"int64_override_type,omitempty"`
 	// mark a field as required in Open API definition
-
 	RequiredStringViaFieldBehaviorAnnotation string `json:"required_string_via_field_behavior_annotation,omitempty"`
 	// mark a field as readonly in Open API definition
-
 	OutputOnlyStringViaFieldBehaviorAnnotation string `json:"output_only_string_via_field_behavior_annotation,omitempty"`
 }
 
 // ABitOfEverythingRepeated is used to validate repeated path parameter functionality
 type ABitOfEverythingRepeated struct {
 	// repeated values. they are comma-separated in path
-
 	PathRepeatedFloatValue    []float32     `json:"path_repeated_float_value,omitempty"`
 	PathRepeatedDoubleValue   []float64     `json:"path_repeated_double_value,omitempty"`
 	PathRepeatedInt64Value    []int64       `json:"path_repeated_int64_value,omitempty"`
@@ -140,7 +131,6 @@ type MessageWithBody struct {
 type UpdateV2Request struct {
 	Abe *ABitOfEverything `json:"abe,omitempty"`
 	// The paths to update.
-
 	UpdateMask *fieldmaskpb.FieldMask `json:"update_mask,omitempty"`
 }
 
@@ -154,13 +144,10 @@ type Book struct {
 	// Format: `publishers/{publisher}/books/{book}`
 	//
 	// Example: `publishers/1257894000000000000/books/my-book`
-
 	Name string `json:"name,omitempty"`
 	// Output only. The book's ID.
-
 	Id string `json:"id,omitempty"`
 	// Output only. Creation time of the book.
-
 	CreateTime *timestamppb.Timestamp `json:"create_time,omitempty"`
 }
 
@@ -175,15 +162,12 @@ type CreateBookRequest struct {
 	// Format: `publishers/{publisher}`
 	//
 	// Example: `publishers/1257894000000000000`
-
 	Parent string `json:"parent,omitempty"`
 	// The book to create.
-
 	Book *Book `json:"book,omitempty"`
 	// The ID to use for the book.
 	//
 	// This must start with an alphanumeric character.
-
 	BookId string `json:"book_id,omitempty"`
 }
 
@@ -195,14 +179,11 @@ type UpdateBookRequest struct {
 	//
 	// The book's `name` field is used to identify the book to be updated.
 	// Format: publishers/{publisher}/books/{book}
-
 	Book *Book `json:"book,omitempty"`
 	// The list of fields to be updated.
-
 	UpdateMask *fieldmaskpb.FieldMask `json:"update_mask,omitempty"`
 	// If set to true, and the book is not found, a new book will be created.
 	// In this situation, `update_mask` is ignored.
-
 	AllowMissing bool `json:"allow_missing,omitempty"`
 }
 
@@ -232,11 +213,9 @@ type MessageWithNestedPathEnum struct {
 // Nested is nested type.
 type ABitOfEverything_Nested struct {
 	// name is nested field.
-
 	Name   string `json:"name,omitempty"`
 	Amount uint32 `json:"amount,omitempty"`
 	// DeepEnum comment.
-
 	Ok ABitOfEverything_Nested_DeepEnum `json:"ok,omitempty"`
 }
 
@@ -265,12 +244,54 @@ const (
 	NumericEnum_ONE NumericEnum = 1
 )
 
+var (
+	NumericEnum_name = map[int32]string{
+		0: "ZERO",
+		1: "ONE",
+	}
+
+	NumericEnum_value = map[string]int32{
+		"ZERO": 0,
+		"ONE":  1,
+	}
+)
+
+func (x NumericEnum) IsValid() bool {
+	_, ok := NumericEnum_name[int32(x)]
+	return ok
+}
+
+func (x NumericEnum) String() string {
+	return NumericEnum_name[int32(x)]
+}
+
 type PathEnum int32
 
 const (
 	PathEnum_ABC PathEnum = 0
 	PathEnum_DEF PathEnum = 1
 )
+
+var (
+	PathEnum_name = map[int32]string{
+		0: "ABC",
+		1: "DEF",
+	}
+
+	PathEnum_value = map[string]int32{
+		"ABC": 0,
+		"DEF": 1,
+	}
+)
+
+func (x PathEnum) IsValid() bool {
+	_, ok := PathEnum_name[int32(x)]
+	return ok
+}
+
+func (x PathEnum) String() string {
+	return PathEnum_name[int32(x)]
+}
 
 // DeepEnum is one or zero.
 type ABitOfEverything_Nested_DeepEnum int32
@@ -282,12 +303,54 @@ const (
 	ABitOfEverything_Nested_TRUE ABitOfEverything_Nested_DeepEnum = 1
 )
 
+var (
+	ABitOfEverything_Nested_DeepEnum_name = map[int32]string{
+		0: "FALSE",
+		1: "TRUE",
+	}
+
+	ABitOfEverything_Nested_DeepEnum_value = map[string]int32{
+		"FALSE": 0,
+		"TRUE":  1,
+	}
+)
+
+func (x ABitOfEverything_Nested_DeepEnum) IsValid() bool {
+	_, ok := ABitOfEverything_Nested_DeepEnum_name[int32(x)]
+	return ok
+}
+
+func (x ABitOfEverything_Nested_DeepEnum) String() string {
+	return ABitOfEverything_Nested_DeepEnum_name[int32(x)]
+}
+
 type MessagePathEnum_NestedPathEnum int32
 
 const (
 	MessagePathEnum_GHI MessagePathEnum_NestedPathEnum = 0
 	MessagePathEnum_JKL MessagePathEnum_NestedPathEnum = 1
 )
+
+var (
+	MessagePathEnum_NestedPathEnum_name = map[int32]string{
+		0: "GHI",
+		1: "JKL",
+	}
+
+	MessagePathEnum_NestedPathEnum_value = map[string]int32{
+		"GHI": 0,
+		"JKL": 1,
+	}
+)
+
+func (x MessagePathEnum_NestedPathEnum) IsValid() bool {
+	_, ok := MessagePathEnum_NestedPathEnum_name[int32(x)]
+	return ok
+}
+
+func (x MessagePathEnum_NestedPathEnum) String() string {
+	return MessagePathEnum_NestedPathEnum_name[int32(x)]
+}
 
 // ABitOfEverythingServiceServer is the server API for ABitOfEverythingService service.
 type ABitOfEverythingServiceServer interface {
@@ -327,6 +390,8 @@ type ABitOfEverythingServiceServer interface {
 	CheckExternalNestedPathEnum(context.Context, *MessageWithNestedPathEnum) (*emptypb.Empty, error)
 	CheckStatus(context.Context, *emptypb.Empty) (*CheckStatusResponse, error)
 }
+
+var _ ABitOfEverythingServiceServer = &UnimplementedABitOfEverythingServiceServer{}
 
 // UnimplementedABitOfEverythingServiceServer can be embedded to have forward compatible implementations.
 type UnimplementedABitOfEverythingServiceServer struct{}
@@ -423,11 +488,17 @@ func (s *UnimplementedABitOfEverythingServiceServer) CheckStatus(context.Context
 	return nil, status.Errorf(codes.Unimplemented, "method CheckStatus not implemented")
 }
 
-type defaultABitOfEverythingServiceDecorator struct {
+// DefaultABitOfEverythingServiceDecorator the default decorator.
+type DefaultABitOfEverythingServiceDecorator struct {
 	ss ABitOfEverythingServiceServer
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Create(ctx *gin.Context) {
+// NewDefaultABitOfEverythingServiceDecorator constructs a new default ABitOfEverythingService decorator
+func NewDefaultABitOfEverythingServiceDecorator(ss ABitOfEverythingServiceServer) *DefaultABitOfEverythingServiceDecorator {
+	return &DefaultABitOfEverythingServiceDecorator{ss: ss}
+}
+
+func (s *DefaultABitOfEverythingServiceDecorator) Create(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -460,7 +531,7 @@ func (s defaultABitOfEverythingServiceDecorator) Create(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CreateBody(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) CreateBody(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -492,7 +563,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBody(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CreateBook(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) CreateBook(ctx *gin.Context) {
 	var req CreateBookRequest
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -524,7 +595,7 @@ func (s defaultABitOfEverythingServiceDecorator) CreateBook(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) UpdateBook(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) UpdateBook(ctx *gin.Context) {
 	var req UpdateBookRequest
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -556,7 +627,7 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateBook(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Lookup(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) Lookup(ctx *gin.Context) {
 	var req IdMessage
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -580,7 +651,7 @@ func (s defaultABitOfEverythingServiceDecorator) Lookup(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Update(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) Update(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -613,71 +684,7 @@ func (s defaultABitOfEverythingServiceDecorator) Update(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) UpdateV2(ctx *gin.Context) {
-	var req UpdateV2Request
-	shouldBindPayload := func(obj interface{}) error {
-		switch ctx.ContentType() {
-		case "":
-			return ctx.ShouldBindJSON(obj)
-		default:
-			return ctx.ShouldBind(obj)
-		}
-	}
-
-	bindingHandlers := []func(obj interface{}) error{
-		shouldBindPayload,
-		ctx.ShouldBindUri,
-	}
-
-	for _, doBinding := range bindingHandlers {
-		if err := doBinding(&req); err != nil {
-			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-			return
-		}
-	}
-
-	newCtx := runtime.NewContext(ctx)
-	resp, err := s.ss.UpdateV2(newCtx, &req)
-	if err != nil {
-		runtime.HTTPError(ctx, err)
-		return
-	}
-
-	runtime.ForwardResponseMessage(newCtx, resp)
-}
-func (s defaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
-	var req UpdateV2Request
-	shouldBindPayload := func(obj interface{}) error {
-		switch ctx.ContentType() {
-		case "":
-			return ctx.ShouldBindJSON(obj)
-		default:
-			return ctx.ShouldBind(obj)
-		}
-	}
-
-	bindingHandlers := []func(obj interface{}) error{
-		shouldBindPayload,
-		ctx.ShouldBindUri,
-	}
-
-	for _, doBinding := range bindingHandlers {
-		if err := doBinding(&req); err != nil {
-			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
-			return
-		}
-	}
-
-	newCtx := runtime.NewContext(ctx)
-	resp, err := s.ss.UpdateV2(newCtx, &req)
-	if err != nil {
-		runtime.HTTPError(ctx, err)
-		return
-	}
-
-	runtime.ForwardResponseMessage(newCtx, resp)
-}
-func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) UpdateV2(ctx *gin.Context) {
 	var req UpdateV2Request
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -710,7 +717,73 @@ func (s defaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Delete(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) UpdateV2_1(ctx *gin.Context) {
+	var req UpdateV2Request
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
+	}
+
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
+	}
+
+	newCtx := runtime.NewContext(ctx)
+	resp, err := s.ss.UpdateV2(newCtx, &req)
+	if err != nil {
+		runtime.HTTPError(ctx, err)
+		return
+	}
+
+	runtime.ForwardResponseMessage(newCtx, resp)
+}
+
+func (s *DefaultABitOfEverythingServiceDecorator) UpdateV2_2(ctx *gin.Context) {
+	var req UpdateV2Request
+	shouldBindPayload := func(obj interface{}) error {
+		switch ctx.ContentType() {
+		case "":
+			return ctx.ShouldBindJSON(obj)
+		default:
+			return ctx.ShouldBind(obj)
+		}
+	}
+
+	bindingHandlers := []func(obj interface{}) error{
+		shouldBindPayload,
+		ctx.ShouldBindUri,
+	}
+
+	for _, doBinding := range bindingHandlers {
+		if err := doBinding(&req); err != nil {
+			runtime.HTTPError(ctx, status.Errorf(codes.InvalidArgument, err.Error()))
+			return
+		}
+	}
+
+	newCtx := runtime.NewContext(ctx)
+	resp, err := s.ss.UpdateV2(newCtx, &req)
+	if err != nil {
+		runtime.HTTPError(ctx, err)
+		return
+	}
+
+	runtime.ForwardResponseMessage(newCtx, resp)
+}
+
+func (s *DefaultABitOfEverythingServiceDecorator) Delete(ctx *gin.Context) {
 	var req IdMessage
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -734,7 +807,7 @@ func (s defaultABitOfEverythingServiceDecorator) Delete(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) GetQuery(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) GetQuery(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -758,7 +831,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetQuery(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) GetRepeatedQuery(ctx *gin.Context) {
 	var req ABitOfEverythingRepeated
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -782,7 +855,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetRepeatedQuery(ctx *gin.Conte
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Echo(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) Echo(ctx *gin.Context) {
 	var req StringMessage
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -805,7 +878,8 @@ func (s defaultABitOfEverythingServiceDecorator) Echo(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
-func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
+
+func (s *DefaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 	var req StringMessage
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -836,7 +910,8 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_1(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
-func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
+
+func (s *DefaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 	var req StringMessage
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -858,7 +933,7 @@ func (s defaultABitOfEverythingServiceDecorator) Echo_2(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) DeepPathEcho(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -891,7 +966,7 @@ func (s defaultABitOfEverythingServiceDecorator) DeepPathEcho(ctx *gin.Context) 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) Timeout(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) Timeout(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -913,7 +988,7 @@ func (s defaultABitOfEverythingServiceDecorator) Timeout(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) ErrorWithDetails(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -935,7 +1010,7 @@ func (s defaultABitOfEverythingServiceDecorator) ErrorWithDetails(ctx *gin.Conte
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) GetMessageWithBody(ctx *gin.Context) {
 	var req MessageWithBody
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -968,7 +1043,7 @@ func (s defaultABitOfEverythingServiceDecorator) GetMessageWithBody(ctx *gin.Con
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) PostWithEmptyBody(ctx *gin.Context) {
 	var req Body
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -1001,7 +1076,7 @@ func (s defaultABitOfEverythingServiceDecorator) PostWithEmptyBody(ctx *gin.Cont
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) CheckGetQueryParams(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -1025,7 +1100,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckGetQueryParams(ctx *gin.Co
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams(ctx *gin.Context) {
 	var req ABitOfEverything
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -1049,7 +1124,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckNestedEnumGetQueryParams(c
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) CheckPostQueryParams(ctx *gin.Context) {
 	var req ABitOfEverything
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -1082,7 +1157,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckPostQueryParams(ctx *gin.C
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) OverwriteResponseContentType(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -1104,7 +1179,7 @@ func (s defaultABitOfEverythingServiceDecorator) OverwriteResponseContentType(ct
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) CheckExternalPathEnum(ctx *gin.Context) {
 	var req MessageWithPathEnum
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -1126,7 +1201,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalPathEnum(ctx *gin.
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum(ctx *gin.Context) {
 	var req MessageWithNestedPathEnum
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -1148,7 +1223,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckExternalNestedPathEnum(ctx
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultABitOfEverythingServiceDecorator) CheckStatus(ctx *gin.Context) {
+func (s *DefaultABitOfEverythingServiceDecorator) CheckStatus(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -1172,7 +1247,7 @@ func (s defaultABitOfEverythingServiceDecorator) CheckStatus(ctx *gin.Context) {
 
 // RegisterABitOfEverythingServiceServer registers the http handlers for service ABitOfEverythingService to "router".
 func RegisterABitOfEverythingServiceServer(router gin.IRouter, s ABitOfEverythingServiceServer) {
-	d := defaultABitOfEverythingServiceDecorator{ss: s}
+	d := &DefaultABitOfEverythingServiceDecorator{ss: s}
 	router.Handle("POST", "/v1/example/a_bit_of_everything/:float_value/:double_value/:int64_value/separator/:uint64_value/:int32_value/:fixed64_value/:fixed32_value/:bool_value/{string_value=strprefix/*}/:uint32_value/:sfixed32_value/:sfixed64_value/:sint32_value/:sint64_value/:nonConventionalNameValue/:enum_value/:path_enum_value/:nested_path_enum_value/:enum_value_annotation", d.Create)
 	router.Handle("POST", "/v1/example/a_bit_of_everything", d.CreateBody)
 	router.Handle("POST", "/v1/{parent=publishers/*}/books", d.CreateBook)
@@ -2014,10 +2089,43 @@ func (c *defaultABitOfEverythingServiceClient) CheckStatus(ctx context.Context, 
 	return &resp, nil
 }
 
+// All Endpoints
+var (
+	CreateEndpoint                        = "/v1/example/a_bit_of_everything/:float_value/:double_value/:int64_value/separator/:uint64_value/:int32_value/:fixed64_value/:fixed32_value/:bool_value/{string_value=strprefix/*}/:uint32_value/:sfixed32_value/:sfixed64_value/:sint32_value/:sint64_value/:nonConventionalNameValue/:enum_value/:path_enum_value/:nested_path_enum_value/:enum_value_annotation"
+	CreateBodyEndpoint                    = "/v1/example/a_bit_of_everything"
+	CreateBookEndpoint                    = "/v1/{parent=publishers/*}/books"
+	UpdateBookEndpoint                    = "/v1/{book.name=publishers/*/books/*}"
+	LookupEndpoint                        = "/v1/example/a_bit_of_everything/:uuid"
+	UpdateEndpoint                        = "/v1/example/a_bit_of_everything/:uuid"
+	UpdateV2Endpoint                      = "/v2/example/a_bit_of_everything/:abe.uuid"
+	UpdateV2Endpoint_1                    = "/v2/example/a_bit_of_everything/:abe.uuid"
+	UpdateV2Endpoint_2                    = "/v2a/example/a_bit_of_everything/:abe.uuid"
+	DeleteEndpoint                        = "/v1/example/a_bit_of_everything/:uuid"
+	GetQueryEndpoint                      = "/v1/example/a_bit_of_everything/query/:uuid"
+	GetRepeatedQueryEndpoint              = "/v1/example/a_bit_of_everything_repeated/:path_repeated_float_value/:path_repeated_double_value/:path_repeated_int64_value/:path_repeated_uint64_value/:path_repeated_int32_value/:path_repeated_fixed64_value/:path_repeated_fixed32_value/:path_repeated_bool_value/:path_repeated_string_value/:path_repeated_bytes_value/:path_repeated_uint32_value/:path_repeated_enum_value/:path_repeated_sfixed32_value/:path_repeated_sfixed64_value/:path_repeated_sint32_value/:path_repeated_sint64_value"
+	EchoEndpoint                          = "/v1/example/a_bit_of_everything/echo/:value"
+	EchoEndpoint_1                        = "/v2/example/echo"
+	EchoEndpoint_2                        = "/v2/example/echo"
+	DeepPathEchoEndpoint                  = "/v1/example/deep_path/:single_nested.name"
+	TimeoutEndpoint                       = "/v2/example/timeout"
+	ErrorWithDetailsEndpoint              = "/v2/example/errorwithdetails"
+	GetMessageWithBodyEndpoint            = "/v2/example/withbody/:id"
+	PostWithEmptyBodyEndpoint             = "/v2/example/postwithemptybody/:name"
+	CheckGetQueryParamsEndpoint           = "/v1/example/a_bit_of_everything/params/get/:single_nested.name"
+	CheckNestedEnumGetQueryParamsEndpoint = "/v1/example/a_bit_of_everything/params/get/nested_enum/:single_nested.ok"
+	CheckPostQueryParamsEndpoint          = "/v1/example/a_bit_of_everything/params/post/:string_value"
+	OverwriteResponseContentTypeEndpoint  = "/v2/example/overwriteresponsecontenttype"
+	CheckExternalPathEnumEndpoint         = "/v2/{value}:check"
+	CheckExternalNestedPathEnumEndpoint   = "/v3/{value}:check"
+	CheckStatusEndpoint                   = "/v1/example/checkStatus"
+)
+
 // CamelCaseServiceNameServer is the server API for CamelCaseServiceName service.
 type CamelCaseServiceNameServer interface {
 	Empty(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 }
+
+var _ CamelCaseServiceNameServer = &UnimplementedCamelCaseServiceNameServer{}
 
 // UnimplementedCamelCaseServiceNameServer can be embedded to have forward compatible implementations.
 type UnimplementedCamelCaseServiceNameServer struct{}
@@ -2026,11 +2134,17 @@ func (s *UnimplementedCamelCaseServiceNameServer) Empty(context.Context, *emptyp
 	return nil, status.Errorf(codes.Unimplemented, "method Empty not implemented")
 }
 
-type defaultCamelCaseServiceNameDecorator struct {
+// DefaultCamelCaseServiceNameDecorator the default decorator.
+type DefaultCamelCaseServiceNameDecorator struct {
 	ss CamelCaseServiceNameServer
 }
 
-func (s defaultCamelCaseServiceNameDecorator) Empty(ctx *gin.Context) {
+// NewDefaultCamelCaseServiceNameDecorator constructs a new default CamelCaseServiceName decorator
+func NewDefaultCamelCaseServiceNameDecorator(ss CamelCaseServiceNameServer) *DefaultCamelCaseServiceNameDecorator {
+	return &DefaultCamelCaseServiceNameDecorator{ss: ss}
+}
+
+func (s *DefaultCamelCaseServiceNameDecorator) Empty(ctx *gin.Context) {
 	var req emptypb.Empty
 
 	bindingHandlers := []func(obj interface{}) error{}
@@ -2054,7 +2168,7 @@ func (s defaultCamelCaseServiceNameDecorator) Empty(ctx *gin.Context) {
 
 // RegisterCamelCaseServiceNameServer registers the http handlers for service CamelCaseServiceName to "router".
 func RegisterCamelCaseServiceNameServer(router gin.IRouter, s CamelCaseServiceNameServer) {
-	d := defaultCamelCaseServiceNameDecorator{ss: s}
+	d := &DefaultCamelCaseServiceNameDecorator{ss: s}
 	router.Handle("GET", "/v2/example/empty", d.Empty)
 }
 
@@ -2101,3 +2215,8 @@ func (c *defaultCamelCaseServiceNameClient) Empty(ctx context.Context, req *empt
 
 	return &resp, nil
 }
+
+// All Endpoints
+var (
+	EmptyEndpoint = "/v2/example/empty"
+)

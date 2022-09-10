@@ -76,7 +76,10 @@ type EchoServer interface {
 	GetEcho(context.Context, *GetEchoReq) (*GetEchoResp, error)
 	PostEcho(context.Context, *PostEchoReq) (*PostEchoResp, error)
 	PostFormEcho(context.Context, *PostFormEchoReq) (*PostFormEchoResp, error)
+	RawMethod(context.Context, *PostFormEchoReq) (*PostFormEchoResp, error)
 }
+
+var _ EchoServer = &UnimplementedEchoServer{}
 
 // UnimplementedEchoServer can be embedded to have forward compatible implementations.
 type UnimplementedEchoServer struct{}
@@ -93,11 +96,21 @@ func (s *UnimplementedEchoServer) PostFormEcho(context.Context, *PostFormEchoReq
 	return nil, status.Errorf(codes.Unimplemented, "method PostFormEcho not implemented")
 }
 
-type defaultEchoDecorator struct {
+func (s *UnimplementedEchoServer) RawMethod(context.Context, *PostFormEchoReq) (*PostFormEchoResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RawMethod not implemented")
+}
+
+// DefaultEchoDecorator the default decorator.
+type DefaultEchoDecorator struct {
 	ss EchoServer
 }
 
-func (s defaultEchoDecorator) GetEcho(ctx *gin.Context) {
+// NewDefaultEchoDecorator constructs a new default Echo decorator
+func NewDefaultEchoDecorator(ss EchoServer) *DefaultEchoDecorator {
+	return &DefaultEchoDecorator{ss: ss}
+}
+
+func (s *DefaultEchoDecorator) GetEcho(ctx *gin.Context) {
 	var req GetEchoReq
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -121,7 +134,8 @@ func (s defaultEchoDecorator) GetEcho(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
-func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
+
+func (s *DefaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 	var req GetEchoReq
 
 	bindingHandlers := []func(obj interface{}) error{
@@ -147,7 +161,7 @@ func (s defaultEchoDecorator) GetEcho_1(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultEchoDecorator) PostEcho(ctx *gin.Context) {
+func (s *DefaultEchoDecorator) PostEcho(ctx *gin.Context) {
 	var req PostEchoReq
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -180,7 +194,8 @@ func (s defaultEchoDecorator) PostEcho(ctx *gin.Context) {
 
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
-func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
+
+func (s *DefaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 	var req PostEchoReq
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -215,7 +230,7 @@ func (s defaultEchoDecorator) PostEcho_1(ctx *gin.Context) {
 	runtime.ForwardResponseMessage(newCtx, resp)
 }
 
-func (s defaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
+func (s *DefaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
 	var req PostFormEchoReq
 	shouldBindPayload := func(obj interface{}) error {
 		switch ctx.ContentType() {
@@ -249,7 +264,7 @@ func (s defaultEchoDecorator) PostFormEcho(ctx *gin.Context) {
 
 // RegisterEchoServer registers the http handlers for service Echo to "router".
 func RegisterEchoServer(router gin.IRouter, s EchoServer) {
-	d := defaultEchoDecorator{ss: s}
+	d := &DefaultEchoDecorator{ss: s}
 	router.Handle("GET", "/api/v1/echo", d.GetEcho)
 	router.Handle("GET", "/api/v1/echo/:param_in_uri_or_query", d.GetEcho_1)
 	router.Handle("POST", "/api/v1/echo", d.PostEcho)
@@ -284,11 +299,11 @@ func (c *defaultEchoClient) GetEcho(ctx context.Context, req *GetEchoReq) (*GetE
 
 	hreq.Header.Set("Content-Type", "application/json")
 
-	hreq.Header.Add("param_in_header_or_query", req.ParamInHeaderOrQuery)
+	hreq.Header.Add("param_in_header_or_query", fmt.Sprint(req.ParamInHeaderOrQuery))
 
 	var queries = url.Values{}
-	queries.Add("param_in_uri_or_query", req.ParamInUriOrQuery)
-	queries.Add("param_in_header_or_query", req.ParamInHeaderOrQuery)
+	queries.Add("param_in_uri_or_query", fmt.Sprint(req.ParamInUriOrQuery))
+	queries.Add("param_in_header_or_query", fmt.Sprint(req.ParamInHeaderOrQuery))
 	hreq.URL.RawQuery = queries.Encode()
 
 	res, err := c.cc.Do(hreq)
@@ -325,10 +340,10 @@ func (c *defaultEchoClient) PostEcho(ctx context.Context, req *PostEchoReq) (*Po
 
 	hreq.Header.Set("Content-Type", "application/json")
 
-	hreq.Header.Add("param_in_header", req.ParamInHeader)
+	hreq.Header.Add("param_in_header", fmt.Sprint(req.ParamInHeader))
 
 	var queries = url.Values{}
-	queries.Add("param_in_uri_or_query", req.ParamInUriOrQuery)
+	queries.Add("param_in_uri_or_query", fmt.Sprint(req.ParamInUriOrQuery))
 	hreq.URL.RawQuery = queries.Encode()
 
 	res, err := c.cc.Do(hreq)
@@ -402,3 +417,12 @@ func (c *defaultEchoClient) PostFormEcho(ctx context.Context, req *PostFormEchoR
 
 	return &resp, nil
 }
+
+// All Endpoints
+var (
+	GetEchoEndpoint      = "/api/v1/echo"
+	GetEchoEndpoint_1    = "/api/v1/echo/:param_in_uri_or_query"
+	PostEchoEndpoint     = "/api/v1/echo"
+	PostEchoEndpoint_1   = "/api/v1/echo/:param_in_uri_or_query"
+	PostFormEchoEndpoint = "/api/v1/form"
+)

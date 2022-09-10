@@ -8,7 +8,9 @@ import (
 	"github.com/jiandahao/golanger/cmd/protoc-gen-golangergin/example/echo"
 )
 
-type echoServer struct{}
+type echoServer struct {
+	echo.UnimplementedEchoServer
+}
 
 func (s *echoServer) GetEcho(ctx context.Context, in *echo.GetEchoReq) (*echo.GetEchoResp, error) {
 	return &echo.GetEchoResp{
