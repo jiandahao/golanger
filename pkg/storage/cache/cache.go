@@ -88,7 +88,7 @@ type todoCache struct {
 }
 
 func (c *todoCache) Del(keys ...string) error                                            { return nil }
-func (c *todoCache) Get(key string, v interface{}) error                                 { return nil }
+func (c *todoCache) Get(key string, v interface{}) error                                 { return c.errNotFound }
 func (c *todoCache) IsNotFound(err error) bool                                           { return err == c.errNotFound }
 func (c *todoCache) Set(key string, v interface{}) error                                 { return nil }
 func (c *todoCache) SetWithExpire(key string, v interface{}, expire time.Duration) error { return nil }

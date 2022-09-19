@@ -17,6 +17,7 @@ import (
 
 var consoleLog = console.NewColorConsole()
 var modelTemplateParser *template.Template
+var cacheConnTemplateParser *template.Template
 
 func init() {
 	var err error
@@ -81,7 +82,11 @@ func generateFromDDL(filename string, database string, outputDir string, withCac
 		}
 
 		//	fmt.Println(buf.String())
-		output[t.Name.Source()] = buf.String()
+		output[fmt.Sprintf("%s_model.go", t.Name.Source())] = buf.String()
+
+		if withCache {
+			var buf bytes.Buffer
+		}
 	}
 
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
@@ -89,7 +94,7 @@ func generateFromDDL(filename string, database string, outputDir string, withCac
 	}
 
 	for tab, out := range output {
-		outputFilename := filepath.Join(outputDir, fmt.Sprintf("%s_model.go", tab))
+		outputFilename := filepath.Join(outputDir, tab)
 		_, err := os.Stat(outputFilename)
 		if err == nil || os.IsExist(err) {
 			consoleLog.Warning(fmt.Sprintf("%s already exists, ignored.", fmt.Sprintf("%s_model.go", tab)))
@@ -172,6 +177,58 @@ func (t *Table) TableUntitleCamleName() string {
 	r := rune(source[0])
 	return string(unicode.ToLower(r)) + source[1:]
 }
+
+var cacheConnTemplate = `
+{{$tableCamelName := .TableCamleName}}
+package {{.PkgName}}
+
+import (
+	"github.com/jiandahao/golanger/pkg/storage/cache"
+)
+
+type {{$tableCamelName}}CacheConn struct {
+	conn {{$tableCamelName}}Model
+	expire time.Duration
+}
+
+func New{{$tableCamelName}}CacheConn(m {{$tableCamelName}}Model) *{{$tableCamelName}}CacheConn {
+	return &{{$tableCamelName}}CacheConn{conn: m}
+}
+
+func (c *{{$tableCamelName}}CacheConn ) Expire(t time.Duration) *{{$tableCamelName}}CacheConn {
+	
+}
+
+func (c *{{$tableCamelName}}CacheConn ) Insert(ctx context.Context, data *{{$tableCamelName}}) error {
+
+}
+
+func (c *{{$tableCamelName}}CacheConn ) Delete(ctx context.Context, {{.PrimaryKey.Name.Source}} {{.PrimaryKey.DataType}}) error {
+
+}
+
+func (c *{{$tableCamelName}}CacheConn ) Update(ctx context.Context, data *{{$tableCamelName}}) error {
+
+}
+
+func (c *{{$tableCamelName}}CacheConn ) FindOne(ctx context.Context, {{.PrimaryKey.Name.Source}} {{.PrimaryKey.DataType}}) (*{{$tableCamelName}}, error) {
+
+}
+
+{{- range $key, $value := .UniqueIndex -}}
+{{$indexField := index $value 0}}
+func (c *{{$tableCamelName}}CacheConn ) FindOneBy{{$indexField.Name.ToCamel}}(ctx context.Context, {{$indexField.NameOriginal}} {{$indexField.DataType}}) (*{{$tableCamelName}}, error) {
+
+}
+{{- end}}
+func (c *{{$tableCamelName}}CacheConn ) Query(ctx context.Context, filters string, opts ...options.QueryOption) ([]*{{$tableCamelName}}, int64, error) {
+
+}
+
+func (c *{{$tableCamelName}}CacheConn ) WithDB(db *gorm.DB) {{$tableCamelName}}Model {
+
+}
+`
 
 var dbModelTemplate = `
 {{$tableCamelName := .TableCamleName}}

@@ -16,6 +16,7 @@ require (
 	github.com/zeromicro/go-zero v1.3.0
 	github.com/zeromicro/go-zero/tools/goctl v1.3.2
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/tools v0.1.5
 	google.golang.org/genproto v0.0.0-20220317150908-0efb43f6373e
 	google.golang.org/grpc v1.45.0
