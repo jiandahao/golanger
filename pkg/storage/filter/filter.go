@@ -13,11 +13,13 @@ type (
 	OperatorType  string
 	FieldNameType string
 
+	// Operator operator
 	Operator struct {
 		shortName OpNameType
 		operator  OperatorType
 	}
 
+	// Conditions filter condition
 	Conditions struct {
 		FieldName FieldNameType
 		Operator  OperatorType
@@ -48,6 +50,7 @@ var (
 	In               = registerOperator("in", "IN")
 )
 
+// Parser represents a filter parser.
 type Parser struct {
 	supportedFields map[FieldNameType][]Operator
 }
@@ -128,7 +131,15 @@ func (f *Parser) Parse(filters string) (string, []interface{}, error) {
 	}
 
 	sort.SliceStable(whereStatement, func(i, j int) bool {
-		return whereStatement[i].FieldName < whereStatement[j].FieldName
+		if whereStatement[i].FieldName < whereStatement[j].FieldName {
+			return true
+		}
+
+		if whereStatement[i].FieldName == whereStatement[j].FieldName {
+			return whereStatement[i].Operator < whereStatement[j].Operator
+		}
+
+		return false
 	})
 
 	var conds []string
@@ -180,6 +191,7 @@ func fixValueType(val interface{}) interface{} {
 	return val
 }
 
+// Where is useful to add a filter condition.
 func Where(fieldName FieldNameType, op Operator, val interface{}) *Filter {
 	filter := &Filter{
 		fields: make(map[FieldNameType]map[OpNameType]interface{}),
@@ -188,10 +200,12 @@ func Where(fieldName FieldNameType, op Operator, val interface{}) *Filter {
 	return filter.Where(fieldName, op, val)
 }
 
+// Filter the filter
 type Filter struct {
 	fields map[FieldNameType]map[OpNameType]interface{}
 }
 
+// NewFilter constructs a Filter by filter string.
 func NewFilter(filter string) (*Filter, error) {
 	filterM := make(map[FieldNameType]map[OpNameType]interface{})
 	if filter == "" {
@@ -239,6 +253,7 @@ func (f *Filter) Where(fieldName FieldNameType, op Operator, val interface{}) *F
 	return f
 }
 
+// HasField returns true if field named fieldName exists.
 func (f *Filter) HasField(fieldName FieldNameType) bool {
 	if f.fields == nil {
 		return false

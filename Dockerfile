@@ -32,7 +32,7 @@ COPY --from=go_builder /go/bin /go/bin
 
 RUN go get github.com/googleapis/googleapis \
     && go get github.com/grpc-ecosystem/grpc-gateway \
-    && go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
+    && go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swaggerr@latest \
     && go install github.com/golang/mock/mockgen@v1.6.0
     
 # setup mysql env
